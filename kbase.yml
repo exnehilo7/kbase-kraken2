@@ -13,3 +13,6 @@ module-version:
 owners:
     [mcflynn617, chienchilo]
 
+data-version:
+    0.1
+
