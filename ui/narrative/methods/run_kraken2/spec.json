@@ -1,0 +1,90 @@
+{
+    "ver": "0.0.1",
+    "authors": [
+        "mcflynn617", "chienchilo"
+    ],
+    "contact": "",
+    "categories": ["active", "communities"],
+    "widgets": {
+        "input": null,
+        "output": "no-display"
+    },
+    "parameters": [
+        {
+            "id": "input_genomes",
+            "optional": false,
+            "advanced": false,
+            "allow_multiple": false,
+            "default_values": [ "" ],
+            "field_type": "text",
+            "text_options": {
+                "valid_ws_types": [ "KBaseGenomes.Genome" ]
+            }
+        },
+        {
+			"id": "db_type",
+			"optional": false,
+			"advanced": false,
+			"allow_multiple": false,
+			"default_values": ["minikraken2_v1_8GB"],
+			"field_type": "dropdown",
+				"dropdown_options": {
+					"options": [
+						{
+							"value": "16S_Greengenes_20190418",
+							"display": "16S Greengenes",
+							"id": "16S_Greengenes_20190418",
+							"ui-name": "16S_Greengenes_20190418"
+						},
+						{
+							"value": "16S_RDP_20190418",
+							"display": "16S RDP",
+							"id": "16S_RDP_20190418",
+							"ui-name": "16S_RDP_20190418"
+						},
+						{
+							"value": "16S_Silva_20190418",
+							"display": "16S Silva",
+							"id": "16S_Silva_20190418",
+							"ui-name": "16S_Silva_20190418"
+						}
+					]
+				}
+		}
+    ],
+    "behavior": {
+        "service-mapping": {
+            "url": "",
+            "name": "kraken2",
+            "method": "run_kraken2",
+            "input_mapping": [
+                {
+                    "narrative_system_variable": "workspace",
+                    "target_property": "workspace_name"
+                },{
+                    "narrative_system_variable": "workspace_id",
+                    "target_property": "workspace_id"
+                },{
+                    "input_parameter": "input_genomes",
+					"target_property": "input_genomes",
+					"target_type_transform": "list<resolved-genome>"
+                },
+				{
+					"input_parameter": "db_type",
+					"target_property": "db_type"
+				}
+            ],
+            "output_mapping": [
+                {
+                    "service_method_output_path": [0,"report_name"],
+                    "target_property": "report_name"
+                },{
+                    "service_method_output_path": [0,"report_genome"],
+                    "target_property": "report_genome"
+                }
+            ]
+        }
+    },
+    "job_id_output_field": "docker"
+}
+
