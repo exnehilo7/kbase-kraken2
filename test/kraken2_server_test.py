@@ -3,12 +3,15 @@ import os
 import time
 import unittest
 from configparser import ConfigParser
+import subprocess
+import logging
 
 from kraken2.kraken2Impl import kraken2
 from kraken2.kraken2Server import MethodContext
 from kraken2.authclient import KBaseAuth as _KBaseAuth
 
 from installed_clients.WorkspaceClient import Workspace
+from installed_clients.AssemblyUtilClient import AssemblyUtil
 
 
 class kraken2Test(unittest.TestCase):
@@ -53,7 +56,7 @@ class kraken2Test(unittest.TestCase):
             print('Test workspace was deleted')
 
     # NOTE: According to Python unittest naming rules test method names should start from 'test'. # noqa
-    def test_run_kraken2(self):
+    def test_param(self):
         # Prepare test objects in workspace if needed using
         # self.getWsClient().save_objects({'workspace': self.getWsName(),
         #                                  'objects': []})
@@ -70,3 +73,24 @@ class kraken2Test(unittest.TestCase):
                                             'db_type': 'minikraken2_v1_8GB'
                                             })
         print("report_name", ret[0]['report_name'])
+        # self.assertEqual(ret[0])
+
+    def test_kraken2(self):
+        self.assertTrue(os.path.exists('/data/kraken2/16S_Greengenes_20190418'))
+        self.assertTrue(os.path.exists(
+            '/data/kraken2/minikraken2_v1_8GB/database100mers.kmer_distrib'))
+        cmd = ['kraken2', '-db', '/data/kraken2/minikraken2_v1_8GB',
+               '--report', 'test.txt', '--threads', '1', '/data/kraken2/test.fasta']
+        logging.info(f'cmd {cmd}')
+        p = subprocess.Popen(cmd, stdout=subprocess.PIPE,
+                             stderr=subprocess.STDOUT)
+        logging.info(p.communicate())
+
+        self.assertTrue(os.path.exists('test.txt'))
+        logging.info(f'current directory {os.getcwd()}')
+        with open('test.txt', 'r') as fp:
+            logging.info('print summary')
+            lines = fp.readlines()
+            # for line in lines:
+            #     logging.info(line.split('\t')[-1].strip())
+        self.assertEqual(lines[-1].split('\t')[-1].strip(), 'Zaire ebolavirus')
