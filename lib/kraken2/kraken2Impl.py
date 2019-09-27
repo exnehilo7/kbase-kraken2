@@ -80,7 +80,7 @@ class kraken2:
         if not isinstance(params['input_genomes'], str) or not len(
                 params['input_genomes']):
             raise ValueError('Pass in a valid input genome string')
-        print(params['input_genomes'], params['db_type'])
+        logging.info(params['input_genomes'], params['db_type'])
 
         assembly_util = AssemblyUtil(self.callback_url)
         fasta_file_obj = assembly_util.get_assembly_as_fasta(
