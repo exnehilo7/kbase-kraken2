@@ -20,10 +20,20 @@ elif [ "${1}" = "init" ] ; then
   mkdir -p /data/kraken2
   cd /data/kraken2
 
-  echo "downloading ftp://ftp.ccb.jhu.edu/pub/data/kraken2_dbs/minikraken2_v1_8GB_201904_UPDATE.tgz"
-  mkdir -p /data/kraken2
-  cd /data/kraken2
+  mkdir -p /data/kraken2/kraken2-microbial
+  echo "downloading https://refdb.s3.climb.ac.uk/kraken2-microbial"
+  if [ -s "/data/kraken2/kraken2-microbial/hash.k2d" ];
+  then
+    echo "kraken2-microbial exists"
+  else
+    cd kraken2-microbial
+    wget -c https://refdb.s3.climb.ac.uk/kraken2-microbial/hash.k2d
+    wget https://refdb.s3.climb.ac.uk/kraken2-microbial/opts.k2d
+    wget https://refdb.s3.climb.ac.uk/kraken2-microbial/taxo.k2d
+  fi
 
+  cd /data/kraken2
+  echo "downloading ftp://ftp.ccb.jhu.edu/pub/data/kraken2_dbs/minikraken2_v1_8GB_201904_UPDATE.tgz"
   if [ -s "/data/kraken2/minikraken2_v1_8GB/database100mers.kmer_distrib" ];
   then
     echo "minikraken2_v1_8GB exists"
