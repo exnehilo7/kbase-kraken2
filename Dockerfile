@@ -11,11 +11,14 @@ MAINTAINER Mark Flynn
 
 # -----------------------------------------
 # Install prerequisites
-RUN apt update && \
-    apt-get install -y build-essential wget unzip python2.7 \
-    python-dev git python-pip curl autoconf autogen libssl-dev \
+#RUN apt update && \
+#    apt-get install -y build-essential wget unzip python2.7 \
+#    python-dev git python-pip curl autoconf autogen libssl-dev \
+#    ncbi-blast+
+RUN pip install pandas && \
+    apt update && \
+    apt-get install -y build-essential wget unzip git curl autoconf autogen libssl-dev \
     ncbi-blast+
-
 # Install kraken2
 RUN cd /usr/ && \
     wget http://github.com/DerrickWood/kraken2/archive/v2.0.7-beta.tar.gz && \
@@ -27,6 +30,7 @@ RUN cd /usr/ && \
 COPY ./ /kb/module
 RUN mkdir -p /kb/module/work
 RUN chmod -R a+rw /kb/module
+RUN chmod +x /kb/module/lib/kraken2/src/kraken2.sh
 
 WORKDIR /kb/module
 
