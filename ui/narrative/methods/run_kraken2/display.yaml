@@ -24,12 +24,12 @@ suggestions:
 parameters :
     input_genomes :
         ui-name : |
-            Genomes
+            Assembly
         short-hint : |
-            The genome library set to examine
+            The assembly library set to examine
     db_type:
         ui-name : |
-            Reference DB |
+            Reference DB
         short-hint: |
             Database to search against for classification.
 

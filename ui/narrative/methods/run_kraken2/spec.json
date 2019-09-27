@@ -31,6 +31,12 @@
 				"dropdown_options": {
 					"options": [
 						{
+							"value": "minikraken2_v1_8GB",
+							"display": "minikraken2_v1",
+							"id": "minikraken2_v1_8GB",
+							"ui-name": "minikraken2_v1_8GB"
+						},
+						{
 							"value": "16S_Greengenes_20190418",
 							"display": "16S Greengenes",
 							"id": "16S_Greengenes_20190418",
@@ -67,7 +73,7 @@
                 },{
                     "input_parameter": "input_genomes",
 					"target_property": "input_genomes",
-					"target_type_transform": "list<resolved-genome>"
+					"target_type_transform": "list<resolved-ref>"
                 },
 				{
 					"input_parameter": "db_type",
