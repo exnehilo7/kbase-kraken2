@@ -27,6 +27,16 @@ parameters :
             Assembly
         short-hint : |
             The assembly library set to examine
+    input_refs :
+        ui-name : |
+            Single-end Read library or ReadsSet
+        short-hint :
+            The library of single end reads to examine.
+    input_paired_refs :
+        ui-name : |
+            Paired single-end read libraries
+        short-hint :
+            Pair of single-end read libraries or read library set to examine.
     db_type:
         ui-name : |
             Reference DB

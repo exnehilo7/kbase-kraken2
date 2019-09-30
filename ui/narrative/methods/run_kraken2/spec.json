@@ -12,7 +12,7 @@
     "parameters": [
         {
             "id": "input_genomes",
-            "optional": false,
+            "optional": true,
             "advanced": false,
             "allow_multiple": false,
             "default_values": [ "" ],
@@ -21,6 +21,28 @@
                 "valid_ws_types": [ "KBaseGenomeAnnotations.Assembly", "KBaseFile.AssemblyFile", "KBaseGenomes.ContigSet" ]
             }
         },
+        {
+			"id": "input_refs",
+			"optional": true,
+			"advanced": false,
+			"allow_multiple": true,
+			"default_values": [ "" ],
+			"field_type": "text",
+			"text_options": {
+				"valid_ws_types": [ "KBaseSets.ReadsSet", "KBaseFile.SingleEndLibrary"]
+			}
+		},
+        {
+			"id": "input_paired_refs",
+			"optional": true,
+			"advanced": false,
+			"allow_multiple": true,
+			"default_values": [ "" ],
+			"field_type": "text",
+			"text_options": {
+				"valid_ws_types": [ "KBaseSets.ReadsSet", "KBaseFile.SingleEndLibrary"]
+			}
+		},
         {
 			"id": "db_type",
 			"optional": false,
@@ -73,14 +95,28 @@
                 {
                     "narrative_system_variable": "workspace",
                     "target_property": "workspace_name"
-                },{
+                },
+                {
                     "narrative_system_variable": "workspace_id",
                     "target_property": "workspace_id"
-                },{
+                },
+                {
                     "input_parameter": "input_genomes",
 					"target_property": "input_genomes",
 					"target_type_transform": "list<resolved-ref>"
                 },
+                {
+					"input_parameter": "input_refs",
+					"target_property": "input_refs",
+					"target_type_transform": "list<resolved-ref>"
+
+				},
+                {
+					"input_parameter": "input_paired_refs",
+					"target_property": "input_paired_refs",
+					"target_type_transform": "list<resolved-ref>"
+
+				},
 				{
 					"input_parameter": "db_type",
 					"target_property": "db_type"
@@ -90,9 +126,14 @@
                 {
                     "service_method_output_path": [0,"report_name"],
                     "target_property": "report_name"
-                },{
-                    "service_method_output_path": [0,"report_genome"],
-                    "target_property": "report_genome"
+                },
+				{
+                    "service_method_output_path": [0,"report_ref"],
+                    "target_property": "report_ref"
+                },
+				{
+                    "narrative_system_variable": "workspace",
+                    "target_property": "workspace_name"
                 }
             ]
         }

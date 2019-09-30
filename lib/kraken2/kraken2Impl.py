@@ -6,6 +6,7 @@ import subprocess
 import pandas as pd
 
 from installed_clients.KBaseReportClient import KBaseReport
+from installed_clients.ReadsUtilsClient import ReadsUtils
 from installed_clients.AssemblyUtilClient import AssemblyUtil
 from installed_clients.DataFileUtilClient import DataFileUtil
 #END_HEADER
@@ -71,22 +72,96 @@ class kraken2:
         # return variables are: output
         #BEGIN run_kraken2
 
-        # Download input data as FASTA
-        for name in ['input_genomes',
-                     'workspace_name', 'db_type']:
+        # Download input data as FASTA or FASTQ
+        for name in ['workspace_name', 'db_type']:
             if name not in params:
                 raise ValueError(
                     'Parameter "' + name + '" is required but missing')
-        if not isinstance(params['input_genomes'], str) or not len(
-                params['input_genomes']):
-            raise ValueError('Pass in a valid input genome string')
-        logging.info(params['input_genomes'], params['db_type'])
+        if 'input_genomes' not in params and 'input_refs' not in params and 'input_paired_refs' not in params:
+            raise ValueError(
+                'You must enter either an input genome or input reads')
 
-        assembly_util = AssemblyUtil(self.callback_url)
-        fasta_file_obj = assembly_util.get_assembly_as_fasta(
-            {'ref': params['input_genomes']})
-        logging.info(fasta_file_obj)
-        fasta_file = fasta_file_obj['path']
+        if 'input_refs' in params and 'input_paired_refs' in params:
+            raise ValueError(
+                'You must enter either single-end or paired-end reads, '
+                'but not both')
+
+        if 'input_genomes' in params and ('input_refs' in params or 'input_paired_refs' in params):
+            raise ValueError(
+                'You must enter either an input genome or input reads, '
+                'but not both')
+
+        if 'input_genomes' in params and (
+                not isinstance(params['input_genomes'], str) or not len(
+                params['input_genomes'])):
+            raise ValueError('Pass in a valid input genome string')
+
+        if 'input_refs' in params and (
+                not isinstance(params['input_refs'], list) or not len(
+                params['input_refs'])):
+            raise ValueError('Pass in a list of input references')
+
+        if 'input_paired_refs' in params and (
+                not isinstance(params['input_paired_refs'], list) or not len(
+                params['input_paired_refs'])):
+            raise ValueError('Pass in a list of input references')
+
+        logging.info(params['db_type'])
+        input_string = []
+        if 'input_genomes' in params:
+            assembly_util = AssemblyUtil(self.callback_url)
+            fasta_file_obj = assembly_util.get_assembly_as_fasta(
+                {'ref': params['input_genomes']})
+            logging.info(fasta_file_obj)
+            fasta_file = fasta_file_obj['path']
+            input_string.append(fasta_file)
+
+        if 'input_refs' in params:
+            logging.info('Downloading Reads data as a Fastq file.')
+            logging.info(f"input_refs {params['input_refs']}")
+            readsUtil = ReadsUtils(self.callback_url)
+            download_reads_output = readsUtil.download_reads(
+                {'read_libraries': params['input_refs']})
+            print(
+                f"Input parameters {params['input_refs']}, {params['db_type']}"
+                f"download_reads_output {download_reads_output}")
+            fastq_files = []
+            fastq_files_name = []
+            for key, val in download_reads_output['files'].items():
+                if 'fwd' in val['files'] and val['files']['fwd']:
+                    fastq_files.append(val['files']['fwd'])
+                    fastq_files_name.append(val['files']['fwd_name'])
+                if 'rev' in val['files'] and val['files']['rev']:
+                    fastq_files.append(val['files']['rev'])
+                    fastq_files_name.append(val['files']['rev_name'])
+            logging.info(f"fastq files {fastq_files}")
+            input_string.append(' '.join(fastq_files))
+
+        if 'input_paired_refs' in params:
+            logging.info('Downloading Reads data as a Fastq file.')
+            logging.info(f"input_refs {params['input_paired_refs']}")
+            readsUtil = ReadsUtils(self.callback_url)
+            download_reads_output = readsUtil.download_reads(
+                {'read_libraries': params['input_paired_refs']})
+            print(
+                f"Input parameters {params['input_paired_refs']}, {params['db_type']}"
+                f"download_reads_output {download_reads_output}")
+            fastq_files = []
+            fastq_files_name = []
+            input_string.append('--paired')
+            for key, val in download_reads_output['files'].items():
+                if 'fwd' in val['files'] and val['files']['fwd']:
+                    fastq_files.append(val['files']['fwd'])
+                    fastq_files_name.append(val['files']['fwd_name'])
+                if 'rev' in val['files'] and val['files']['rev']:
+                    fastq_files.append(val['files']['rev'])
+                    fastq_files_name.append(val['files']['rev_name'])
+            if len(fastq_files) % 2 != 0:
+                raise ValueError('There must be an even number of Paired-end reads files')
+            logging.info(f"fastq files {fastq_files}")
+            input_string.extend(fastq_files)
+
+        logging.info(f'input_string {input_string}')
 
         output_dir = os.path.join(self.shared_folder, 'kraken2_output')
         if not os.path.exists(output_dir):
@@ -98,7 +173,10 @@ class kraken2:
         #        '--db', '/data/kraken2/' + params['db_type'], '--threads', '1',
         #        '--input', fasta_file]
         report_file_name = 'report.txt'
-        cmd = ['kraken2', '-db', '/data/kraken2/' + params['db_type'], '--report', report_file_name, '--threads', '1', fasta_file]
+        cmd = ['kraken2', '-db', '/data/kraken2/' + params['db_type'],
+               '--output', output_dir, '--report', report_file_name,
+               '--threads', '1']
+        cmd.extend(input_string)
         logging.info(f'cmd {cmd}')
         p = subprocess.Popen(cmd, stdout=subprocess.PIPE,
                              stderr=subprocess.STDOUT)
@@ -142,7 +220,7 @@ class kraken2:
             if not os.path.isdir(output):
                 output_files_list.append(
                     {'path': os.path.join(output_dir, output), 'name': output})
-        message = f"Kraken2 run finished on {fasta_file} against {params['db_type']}."
+        message = f"Kraken2 run finished on {input_string} against {params['db_type']}."
         report_params = {'message': message,
                          'workspace_name': params.get('workspace_name'),
                          'objects_created': objects_created,
@@ -160,7 +238,9 @@ class kraken2:
         # Return references which will allow inline display of
         # the report in the Narrative
         output = {'report_name': report_output['name'],
-                  'report_ref': report_output['ref']}
+                  'report_ref': report_output['ref'],
+                  'report_params': report_output['report_params']
+                  }
         #END run_kraken2
 
         # At some point might do deeper type checking...

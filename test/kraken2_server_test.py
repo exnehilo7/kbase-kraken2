@@ -46,7 +46,7 @@ class kraken2Test(unittest.TestCase):
         cls.scratch = cls.cfg['scratch']
         cls.callback_url = os.environ['SDK_CALLBACK_URL']
         suffix = int(time.time() * 1000)
-        cls.wsName = "test_ContigFilter_" + str(suffix)
+        cls.wsName = "test_Kraken2_" + str(suffix)
         ret = cls.wsClient.create_workspace({'workspace': cls.wsName})  # noqa
 
     @classmethod
@@ -66,31 +66,120 @@ class kraken2Test(unittest.TestCase):
         #
         # Check returned data with
         # self.assertEqual(ret[...], ...) or other unittest methods
-        ref = "79/16/1"
-        ret = self.serviceImpl.run_kraken2(self.ctx,
+        input_genomes = "79/16/1"
+        input_refs = ['22956/5/2']
+        input_paired_refs = ['22956/8/1', '22956/7/1']
+        print(f"input_refs {input_refs}")
+
+        # Test that either input_genomes or reads
+        with self.assertRaises(ValueError):
+            self.serviceImpl.run_kraken2(self.ctx,
                                            {'workspace_name': self.wsName,
-                                            'input_genomes': ref,
+                                            'input_genomes': None,
                                             'db_type': 'minikraken2_v1_8GB'
                                             })
-        print("report_name", ret[0]['report_name'])
-        # self.assertEqual(ret[0])
+        with self.assertRaises(ValueError):
+            ret = self.serviceImpl.run_kraken2(self.ctx,
+                                           {'workspace_name': self.wsName,
+                                            'input_genomes': input_genomes,
+                                            'input_refs': input_refs,
+                                            'db_type': 'minikraken2_v1_8GB'
+                                            })
+            print(f'ret {ret[0]}')
 
-    def test_kraken2(self):
-        self.assertTrue(os.path.exists('/data/kraken2/16S_Greengenes_20190418'))
-        self.assertTrue(os.path.exists(
-            '/data/kraken2/minikraken2_v1_8GB/database100mers.kmer_distrib'))
-        cmd = ['kraken2', '-db', '/data/kraken2/minikraken2_v1_8GB',
-               '--report', 'test.txt', '--threads', '1', '/data/kraken2/test.fasta']
-        logging.info(f'cmd {cmd}')
-        p = subprocess.Popen(cmd, stdout=subprocess.PIPE,
-                             stderr=subprocess.STDOUT)
-        logging.info(p.communicate())
+        with self.assertRaises(ValueError):
+            ret = self.serviceImpl.run_kraken2(self.ctx,
+                                           {'workspace_name': self.wsName,
+                                            'input_refs': input_refs,
+                                            'input_paired_refs': input_paired_refs,
+                                            'db_type': 'minikraken2_v1_8GB'
+                                            })
+            print(f'ret {ret[0]}')
 
-        self.assertTrue(os.path.exists('test.txt'))
-        logging.info(f'current directory {os.getcwd()}')
-        with open('test.txt', 'r') as fp:
-            logging.info('print summary')
-            lines = fp.readlines()
-            # for line in lines:
-            #     logging.info(line.split('\t')[-1].strip())
-        self.assertEqual(lines[-1].split('\t')[-1].strip(), 'Zaire ebolavirus')
+        # Test with single-ended reads
+        self.serviceImpl.run_kraken2(self.ctx,
+                                           {'workspace_name': self.wsName,
+                                            'input_refs': input_refs,
+                                            'db_type': 'minikraken2_v1_8GB'})
+        self.assertTrue('report_name' in ret[0].keys())
+        self.assertTrue('report_ref' in ret[0].keys())
+        self.assertTrue('report_params' in ret[0].keys())
+        self.assertEqual('kraken2_output.zip',
+                         ret[0]['report_params']['file_links'][0]['name'])
+        self.assertIn('test_Kraken2_',
+                      ret[0]['report_params']['workspace_name'])
+        self.assertIn('Shewanella_oneidensis_MR-1_assembly.fa',
+                      ret[0]['report_params']['message'])
+        self.assertIn('minikraken2_v1_8GB', ret[0]['report_params']['message'])
+
+        # Test with paired single-end reads
+        ret = self.serviceImpl.run_kraken2(self.ctx,
+                                           {'workspace_name': self.wsName,
+                                            'input_paired_refs':
+                                                input_paired_refs,
+                                            'db_type': 'minikraken2_v1_8GB'})
+        self.assertTrue('report_name' in ret[0].keys())
+        self.assertTrue('report_ref' in ret[0].keys())
+        self.assertTrue('report_params' in ret[0].keys())
+        self.assertEqual('kraken2_output.zip',
+                         ret[0]['report_params']['file_links'][0]['name'])
+        self.assertIn('test_Kraken2_', ret[0]['report_params']['workspace_name'])
+        self.assertIn('minikraken2_v1_8GB', ret[0]['report_params']['message'])
+        print(f'ret {ret[0]}')
+
+        # Test with Assemblies
+        ret = self.serviceImpl.run_kraken2(self.ctx,
+                                           {'workspace_name': self.wsName,
+                                            'input_genomes': input_genomes,
+                                            'db_type': 'minikraken2_v1_8GB'})
+
+        print("report", ret[0])
+        self.assertTrue('report_name' in ret[0].keys())
+        self.assertTrue('report_ref' in ret[0].keys())
+        self.assertTrue('report_params' in ret[0].keys())
+        self.assertEqual('kraken2_output.zip',
+                         ret[0]['report_params']['file_links'][0]['name'])
+        self.assertIn('test_Kraken2_', ret[0]['report_params']['workspace_name'])
+        self.assertIn('Shewanella_oneidensis_MR-1_assembly.fa', ret[0]['report_params']['message'])
+        self.assertIn('minikraken2_v1_8GB', ret[0]['report_params']['message'])
+
+
+    # def DO_NOT_test_kraken2(self):
+    #     self.assertTrue(os.path.exists('/data/kraken2/16S_Greengenes_20190418'))
+    #     self.assertTrue(os.path.exists(
+    #         '/data/kraken2/minikraken2_v1_8GB/database100mers.kmer_distrib'))
+    #
+    #     # Test fasta input
+    #     cmd = ['kraken2', '-db', '/data/kraken2/minikraken2_v1_8GB',
+    #            '--report', 'test_fasta.txt', '--threads', '1', '--fasta-input', '/data/kraken2/test.fasta']
+    #     logging.info(f'cmd {cmd}')
+    #     p = subprocess.Popen(cmd, stdout=subprocess.PIPE,
+    #                          stderr=subprocess.STDOUT)
+    #     logging.info(p.communicate())
+    #
+    #     self.assertTrue(os.path.exists('test_fasta.txt'))
+    #     logging.info(f'current directory {os.getcwd()}')
+    #     with open('test_fasta.txt', 'r') as fp:
+    #         logging.info('print summary')
+    #         lines = fp.readlines()
+    #         # for line in lines:
+    #         #     logging.info(line.split('\t')[-1].strip())
+    #     self.assertEqual(lines[-1].split('\t')[-1].strip(), 'Zaire ebolavirus')
+    #
+    #     # Test fastq input
+    #     cmd = ['kraken2', '-db', '/data/kraken2/minikraken2_v1_8GB',
+    #            '--report', 'test_fastq.txt', '--threads', '1', '--fastq-input',
+    #            '/data/kraken2/test.fastq']
+    #     logging.info(f'cmd {cmd}')
+    #     p = subprocess.Popen(cmd, stdout=subprocess.PIPE,
+    #                          stderr=subprocess.STDOUT)
+    #     logging.info(p.communicate())
+
+        # self.assertTrue(os.path.exists('test_fastq.txt'))
+        # logging.info(f'current directory {os.getcwd()}')
+        # with open('test_fastq.txt', 'r') as fp:
+        #     logging.info('print summary')
+        #     lines = fp.readlines()
+        #     for line in lines:
+        #         logging.info(line.split('\t')[-1].strip())
+        # self.assertEqual(lines[-1].split('\t')[-1].strip(), 'Zaire ebolavirus')
