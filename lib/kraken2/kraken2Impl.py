@@ -108,11 +108,12 @@ class kraken2:
             raise ValueError('Pass in a list of input references')
 
         logging.info(params['db_type'])
+        logging.info(f'input_genomes {input_genomes} input_refs {input_refs} input_paired_refs {input_paired_refs}')
         input_string = []
         if input_genomes:
             assembly_util = AssemblyUtil(self.callback_url)
             fasta_file_obj = assembly_util.get_assembly_as_fasta(
-                {'ref': params['input_genomes']})
+                {'ref': params['input_genomes'][0]})
             logging.info(fasta_file_obj)
             fasta_file = fasta_file_obj['path']
             input_string.append(fasta_file)
