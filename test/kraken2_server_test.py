@@ -97,7 +97,7 @@ class kraken2Test(unittest.TestCase):
             print(f'ret {ret[0]}')
 
         # Test with single-ended reads
-        self.serviceImpl.run_kraken2(self.ctx,
+        ret = self.serviceImpl.run_kraken2(self.ctx,
                                            {'workspace_name': self.wsName,
                                             'input_refs': input_refs,
                                             'db_type': 'minikraken2_v1_8GB'})
@@ -108,8 +108,6 @@ class kraken2Test(unittest.TestCase):
                          ret[0]['report_params']['file_links'][0]['name'])
         self.assertIn('test_Kraken2_',
                       ret[0]['report_params']['workspace_name'])
-        self.assertIn('Shewanella_oneidensis_MR-1_assembly.fa',
-                      ret[0]['report_params']['message'])
         self.assertIn('minikraken2_v1_8GB', ret[0]['report_params']['message'])
 
         # Test with paired single-end reads
@@ -144,42 +142,42 @@ class kraken2Test(unittest.TestCase):
         self.assertIn('minikraken2_v1_8GB', ret[0]['report_params']['message'])
 
 
-    # def DO_NOT_test_kraken2(self):
-    #     self.assertTrue(os.path.exists('/data/kraken2/16S_Greengenes_20190418'))
-    #     self.assertTrue(os.path.exists(
-    #         '/data/kraken2/minikraken2_v1_8GB/database100mers.kmer_distrib'))
-    #
-    #     # Test fasta input
-    #     cmd = ['kraken2', '-db', '/data/kraken2/minikraken2_v1_8GB',
-    #            '--report', 'test_fasta.txt', '--threads', '1', '--fasta-input', '/data/kraken2/test.fasta']
-    #     logging.info(f'cmd {cmd}')
-    #     p = subprocess.Popen(cmd, stdout=subprocess.PIPE,
-    #                          stderr=subprocess.STDOUT)
-    #     logging.info(p.communicate())
-    #
-    #     self.assertTrue(os.path.exists('test_fasta.txt'))
-    #     logging.info(f'current directory {os.getcwd()}')
-    #     with open('test_fasta.txt', 'r') as fp:
-    #         logging.info('print summary')
-    #         lines = fp.readlines()
-    #         # for line in lines:
-    #         #     logging.info(line.split('\t')[-1].strip())
-    #     self.assertEqual(lines[-1].split('\t')[-1].strip(), 'Zaire ebolavirus')
-    #
-    #     # Test fastq input
-    #     cmd = ['kraken2', '-db', '/data/kraken2/minikraken2_v1_8GB',
-    #            '--report', 'test_fastq.txt', '--threads', '1', '--fastq-input',
-    #            '/data/kraken2/test.fastq']
-    #     logging.info(f'cmd {cmd}')
-    #     p = subprocess.Popen(cmd, stdout=subprocess.PIPE,
-    #                          stderr=subprocess.STDOUT)
-    #     logging.info(p.communicate())
+    def test_kraken2(self):
+        self.assertTrue(os.path.exists('/data/kraken2/16S_Greengenes_20190418'))
+        self.assertTrue(os.path.exists(
+            '/data/kraken2/minikraken2_v1_8GB/database100mers.kmer_distrib'))
 
-        # self.assertTrue(os.path.exists('test_fastq.txt'))
-        # logging.info(f'current directory {os.getcwd()}')
-        # with open('test_fastq.txt', 'r') as fp:
-        #     logging.info('print summary')
-        #     lines = fp.readlines()
-        #     for line in lines:
-        #         logging.info(line.split('\t')[-1].strip())
-        # self.assertEqual(lines[-1].split('\t')[-1].strip(), 'Zaire ebolavirus')
+        # Test fasta input
+        cmd = ['kraken2', '-db', '/data/kraken2/minikraken2_v1_8GB',
+               '--report', 'test_fasta.txt', '--threads', '1', '--fasta-input', '/data/kraken2/test.fasta']
+        logging.info(f'cmd {cmd}')
+        p = subprocess.Popen(cmd, stdout=subprocess.PIPE,
+                             stderr=subprocess.STDOUT)
+        logging.info(p.communicate())
+
+        self.assertTrue(os.path.exists('test_fasta.txt'))
+        logging.info(f'current directory {os.getcwd()}')
+        with open('test_fasta.txt', 'r') as fp:
+            logging.info('print summary')
+            lines = fp.readlines()
+            # for line in lines:
+            #     logging.info(line.split('\t')[-1].strip())
+        self.assertEqual(lines[-1].split('\t')[-1].strip(), 'Zaire ebolavirus')
+
+        # Test fastq input
+        cmd = ['kraken2', '-db', '/data/kraken2/minikraken2_v1_8GB',
+               '--report', 'test_fastq.txt', '--threads', '1', '--fastq-input',
+               '/data/kraken2/test.fastq']
+        logging.info(f'cmd {cmd}')
+        p = subprocess.Popen(cmd, stdout=subprocess.PIPE,
+                             stderr=subprocess.STDOUT)
+        logging.info(p.communicate())
+
+        self.assertTrue(os.path.exists('test_fastq.txt'))
+        logging.info(f'current directory {os.getcwd()}')
+        with open('test_fastq.txt', 'r') as fp:
+            logging.info('print summary')
+            lines = fp.readlines()
+            for line in lines:
+                logging.info(line.split('\t')[-1].strip())
+        self.assertEqual(lines[-1].split('\t')[-1].strip(), 'Borrelia miyamotoi')
