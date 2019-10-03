@@ -75,7 +75,9 @@ class kraken2Test(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.serviceImpl.run_kraken2(self.ctx,
                                            {'workspace_name': self.wsName,
-                                            'input_genomes': None,
+                                            'input_genomes': [],
+                                            'input_refs': [],
+                                            'input_paired_refs': [],
                                             'db_type': 'minikraken2_v1_8GB'
                                             })
         with self.assertRaises(ValueError):
@@ -83,6 +85,7 @@ class kraken2Test(unittest.TestCase):
                                            {'workspace_name': self.wsName,
                                             'input_genomes': input_genomes,
                                             'input_refs': input_refs,
+                                            'input_paired_refs': [],
                                             'db_type': 'minikraken2_v1_8GB'
                                             })
             print(f'ret {ret[0]}')
@@ -90,6 +93,7 @@ class kraken2Test(unittest.TestCase):
         with self.assertRaises(ValueError):
             ret = self.serviceImpl.run_kraken2(self.ctx,
                                            {'workspace_name': self.wsName,
+                                            'input_genomes': [],
                                             'input_refs': input_refs,
                                             'input_paired_refs': input_paired_refs,
                                             'db_type': 'minikraken2_v1_8GB'
@@ -149,7 +153,7 @@ class kraken2Test(unittest.TestCase):
 
         # Test fasta input
         cmd = ['kraken2', '-db', '/data/kraken2/minikraken2_v1_8GB',
-               '--report', 'test_fasta.txt', '--threads', '1', '--fasta-input', '/data/kraken2/test.fasta']
+               '--report', 'test_fasta.txt', '--threads', '1', '/data/kraken2/test.fasta']
         logging.info(f'cmd {cmd}')
         p = subprocess.Popen(cmd, stdout=subprocess.PIPE,
                              stderr=subprocess.STDOUT)

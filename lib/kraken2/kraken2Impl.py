@@ -74,42 +74,42 @@ class kraken2:
 
         # Download input data as FASTA or FASTQ
         logging.info(f'params {params}')
+        input_genomes = 'input_genomes' in params and len(params['input_genomes']) > 0
+        input_refs = 'input_refs' in params and len(params['input_refs']) > 0
+        input_paired_refs = 'input_paired_refs' in params and len(params['input_paired_refs']) > 0
         for name in ['workspace_name', 'db_type']:
             if name not in params:
                 raise ValueError(
                     'Parameter "' + name + '" is required but missing')
-        if 'input_genomes' not in params and 'input_refs' not in params and 'input_paired_refs' not in params:
+        if not input_genomes and not input_refs and not input_paired_refs:
             raise ValueError(
                 'You must enter either an input genome or input reads')
 
-        if 'input_refs' in params and 'input_paired_refs' in params:
+        if input_refs and input_paired_refs:
             raise ValueError(
                 'You must enter either single-end or paired-end reads, '
                 'but not both')
 
-        if 'input_genomes' in params and ('input_refs' in params or 'input_paired_refs' in params):
+        if input_genomes and (input_refs or input_paired_refs):
             raise ValueError(
                 'You must enter either an input genome or input reads, '
                 'but not both')
 
-        if 'input_genomes' in params and (
-                not isinstance(params['input_genomes'], str) or not len(
-                params['input_genomes'])):
+        if input_genomes and (
+                not isinstance(params['input_genomes'][0], str)):
             raise ValueError('Pass in a valid input genome string')
 
-        if 'input_refs' in params and (
-                not isinstance(params['input_refs'], list) or not len(
-                params['input_refs'])):
+        if input_refs and (
+                not isinstance(params['input_refs'], list)):
             raise ValueError('Pass in a list of input references')
 
-        if 'input_paired_refs' in params and (
-                not isinstance(params['input_paired_refs'], list) or not len(
-                params['input_paired_refs'])):
+        if input_paired_refs and (
+                not isinstance(params['input_paired_refs'], list)):
             raise ValueError('Pass in a list of input references')
 
         logging.info(params['db_type'])
         input_string = []
-        if 'input_genomes' in params:
+        if input_genomes:
             assembly_util = AssemblyUtil(self.callback_url)
             fasta_file_obj = assembly_util.get_assembly_as_fasta(
                 {'ref': params['input_genomes']})
@@ -117,7 +117,7 @@ class kraken2:
             fasta_file = fasta_file_obj['path']
             input_string.append(fasta_file)
 
-        if 'input_refs' in params:
+        if input_refs:
             logging.info('Downloading Reads data as a Fastq file.')
             logging.info(f"input_refs {params['input_refs']}")
             readsUtil = ReadsUtils(self.callback_url)
@@ -138,7 +138,7 @@ class kraken2:
             logging.info(f"fastq files {fastq_files}")
             input_string.append(' '.join(fastq_files))
 
-        if 'input_paired_refs' in params:
+        if input_paired_refs:
             logging.info('Downloading Reads data as a Fastq file.')
             logging.info(f"input_refs {params['input_paired_refs']}")
             readsUtil = ReadsUtils(self.callback_url)
