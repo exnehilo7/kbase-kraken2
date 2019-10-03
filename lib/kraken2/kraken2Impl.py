@@ -32,6 +32,48 @@ class kraken2:
     GIT_COMMIT_HASH = "c3ea092d20ef7407841f8805d8c0bb7a351674b5"
 
     #BEGIN_CLASS_HEADER
+    def _generate_report_table(self, report_df, outfile, output_dir):
+        pd.set_option('colheader_justify', 'center')  # FOR TABLE <th>
+        with open(os.path.join(output_dir, 'df_style.css'), 'w') as fp:
+            css_string = '''
+            .mystyle {
+                font-size: 11pt; 
+                font-family: Arial;
+                border-collapse: collapse; 
+                border: 1px solid silver;
+            
+            }
+            
+            .mystyle td, th {
+                padding: 5px;
+            }
+            
+            .mystyle tr:nth-child(even) {
+                background: #E0E0E0;
+            }
+            
+            .mystyle tr:hover {
+                background: silver;
+                cursor: pointer;
+            }
+            '''
+            fp.write(css_string)
+
+        html_string = '''
+        <html>
+          <head>
+          <link rel="stylesheet" type="text/css" href="{css}"/>
+          <title>Kraken2 Report</title></head>
+          <body>
+            {table}
+          </body>
+        </html>.
+        '''
+
+        # OUTPUT AN HTML FILE
+        with open(outfile, 'w') as f:
+            f.write(html_string.format(table=report_df.to_html(classes='mystyle', index=False), css=os.path.join(output_dir, 'df_style.css')))
+
     def package_folder(self, folder_path, zip_file_name, zip_file_description):
         ''' Simple utility for packaging a folder and saving to shock '''
         if folder_path == self.shared_folder:
@@ -222,7 +264,8 @@ class kraken2:
             lambda x: code_dict[x[0]] + x[1] if len(x) > 1 else code_dict[x])
 
         report_html_file = os.path.join(output_dir, 'report.html')
-        report_df.to_html(report_html_file, classes='Kraken2_report', index=False)
+        self._generate_report_table(report_df, report_html_file, output_dir)
+        # report_df.to_html(report_html_file, classes='Kraken2_report', index=False)
         html_zipped = self.package_folder(output_dir, 'report.html',
                                           'report')
         # Step 5 - Build a Report and return
