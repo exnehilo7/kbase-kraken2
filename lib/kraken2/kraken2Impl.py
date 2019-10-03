@@ -74,9 +74,10 @@ class kraken2:
 
         # Download input data as FASTA or FASTQ
         logging.info(f'params {params}')
-        input_genomes = 'input_genomes' in params and len(params['input_genomes']) > 0
-        input_refs = 'input_refs' in params and len(params['input_refs']) > 0
-        input_paired_refs = 'input_paired_refs' in params and len(params['input_paired_refs']) > 0
+        # Check for presence of input file types in params
+        input_genomes = 'input_genomes' in params and len(params['input_genomes']) > 0 and None not in params['input_genomes']
+        input_refs = 'input_refs' in params and len(params['input_refs']) > 0 and None not in params['input_refs']
+        input_paired_refs = 'input_paired_refs' in params and len(params['input_paired_refs']) > 0  and None not in params['input_paired_refs']
         for name in ['workspace_name', 'db_type']:
             if name not in params:
                 raise ValueError(
@@ -166,6 +167,8 @@ class kraken2:
         logging.info(f'input_string {input_string}')
 
         output_dir = os.path.join(self.shared_folder, 'kraken2_output')
+        report_file_name = 'report.txt'
+        report_file = os.path.join(output_dir, report_file_name)
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
 
@@ -174,9 +177,8 @@ class kraken2:
         #        f'{fasta_file}.txt',
         #        '--db', '/data/kraken2/' + params['db_type'], '--threads', '1',
         #        '--input', fasta_file]
-        report_file_name = 'report.txt'
         cmd = ['kraken2', '-db', '/data/kraken2/' + params['db_type'],
-               '--output', output_dir, '--report', report_file_name,
+               '--output', output_dir, '--report', report_file,
                '--threads', '1']
         cmd.extend(input_string)
         logging.info(f'cmd {cmd}')
@@ -207,7 +209,6 @@ class kraken2:
             'Number of fragments covered by the clade rooted at this taxon',
             'Number of fragments assigned directly to this taxon', 'rank code',
             'taxid', 'name']
-        report_file = os.path.join('/kb/module/test', report_file_name)
         report_df = pd.read_csv(report_file, sep='\t',
                                 header=None, names=columns)
         report_html_file = os.path.join(output_dir, 'report.html')
