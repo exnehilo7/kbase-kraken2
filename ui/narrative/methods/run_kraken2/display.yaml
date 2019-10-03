@@ -4,7 +4,7 @@
 name: Kraken2 Taxonomic Sequence Classifier
 
 tooltip: |
-    Perform taxonomic classification of fasta files
+    Perform taxonomic classification of fasta and fastq files
 
 screenshots: []
 
