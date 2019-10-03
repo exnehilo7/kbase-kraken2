@@ -28,8 +28,8 @@ class kraken2:
     # the latter method is running.
     ######################################### noqa
     VERSION = "0.0.1"
-    GIT_URL = "git@github.com:mflynn-lanl/kbase-kraken2.git"
-    GIT_COMMIT_HASH = "c3ea092d20ef7407841f8805d8c0bb7a351674b5"
+    GIT_URL = ""
+    GIT_COMMIT_HASH = ""
 
     #BEGIN_CLASS_HEADER
     def package_folder(self, folder_path, zip_file_name, zip_file_description):
@@ -262,6 +262,7 @@ class kraken2:
                              'output is not type dict as required.')
         # return the results
         return [output]
+
     def status(self, ctx):
         #BEGIN_STATUS
         returnVal = {'state': "OK",
