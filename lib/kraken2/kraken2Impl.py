@@ -73,6 +73,7 @@ class kraken2:
         #BEGIN run_kraken2
 
         # Download input data as FASTA or FASTQ
+        logging.info(f'params {params}')
         for name in ['workspace_name', 'db_type']:
             if name not in params:
                 raise ValueError(
