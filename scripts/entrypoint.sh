@@ -22,14 +22,14 @@ elif [ "${1}" = "init" ] ; then
 
   mkdir -p /data/kraken2/kraken2-microbial
   echo "downloading https://refdb.s3.climb.ac.uk/kraken2-microbial"
-  if [ -s "/data/kraken2/kraken2-microbial/hash.k2d" ];
+  if [ -s "/data/kraken2/kraken2-microbial/hash.k2d"  -a -s  "/data/kraken2/kraken2-microbial/taxo.k2d"   -a -s  "/data/kraken2/kraken2-microbial/opts.k2d" ];
   then
     echo "kraken2-microbial exists"
   else
     cd kraken2-microbial
     wget -c https://refdb.s3.climb.ac.uk/kraken2-microbial/hash.k2d
-    wget https://refdb.s3.climb.ac.uk/kraken2-microbial/opts.k2d
-    wget https://refdb.s3.climb.ac.uk/kraken2-microbial/taxo.k2d
+    wget -c https://refdb.s3.climb.ac.uk/kraken2-microbial/opts.k2d
+    wget -c https://refdb.s3.climb.ac.uk/kraken2-microbial/taxo.k2d
   fi
 
   cd /data/kraken2
@@ -74,7 +74,7 @@ elif [ "${1}" = "init" ] ; then
     rm 16S_Silva_20190418.tgz
   fi
 
-  if [ -s "/data/kraken2/minikraken2_v1_8GB/database100mers.kmer_distrib" -a -s "/data/kraken2/16S_Greengenes_20190418/database100mers.kmer_distrib" -a -s "/data/kraken2/16S_RDP_20190418/database100mers.kmer_distrib" -a -s "/data/kraken2/16S_Silva_20190418/database200mers.kmer_distrib" ] ; then
+  if [ -s "/data/kraken2/minikraken2_v1_8GB/database100mers.kmer_distrib" -a -s "/data/kraken2/16S_Greengenes_20190418/database100mers.kmer_distrib" -a -s "/data/kraken2/16S_RDP_20190418/database100mers.kmer_distrib" -a -s "/data/kraken2/16S_Silva_20190418/database200mers.kmer_distrib" -a -s  "/data/kraken2/kraken2-microbial/taxo.k2d"   -a -s  "/data/kraken2/kraken2-microbial/opts.k2d" ] ; then
     echo "DATA DOWNLOADED SUCCESSFULLY"
     touch /data/__READY__
   else
