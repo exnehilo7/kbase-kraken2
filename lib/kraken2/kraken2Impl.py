@@ -62,7 +62,7 @@ class kraken2:
         html_string = '''
         <html>
           <head>
-          <link rel="stylesheet" type="text/css" href="{css}"/>
+          <link rel="stylesheet" type="text/css" href="df_style.css"/>
           <title>Kraken2 Report</title></head>
           <body>
             {table}
