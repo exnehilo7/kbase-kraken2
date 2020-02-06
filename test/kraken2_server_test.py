@@ -159,7 +159,7 @@ class kraken2Test(unittest.TestCase):
             file_flags[0] = True if link['name'] == 'df_style.css' else file_flags[0]
             file_flags[1] = True if link['name'] == 'report.txt' else file_flags[1]
             file_flags[2] = True if link['name'] == 'kraken2_output.zip' else file_flags[2]
-
+        [print(flag) for flag in file_flags]
         [self.assertTrue(flag) for flag in file_flags]
         # self.assertEqual('df_style.css',
         #                  ret[0]['report_params']['file_links'][0]['name'])
