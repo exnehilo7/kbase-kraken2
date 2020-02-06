@@ -55,8 +55,10 @@ class kraken2Test(unittest.TestCase):
             cls.wsClient.delete_workspace({'workspace': cls.wsName})
             print('Test workspace was deleted')
 
-    # NOTE: According to Python unittest naming rules test method names should start from 'test'. # noqa
+    # NOTE: According to Python unittest naming rules test method names
+    # should start from 'test'. # noqa
     def test_param(self):
+        print('test_param')
         # Prepare test objects in workspace if needed using
         # self.getWsClient().save_objects({'workspace': self.getWsName(),
         #                                  'objects': []})
@@ -95,7 +97,8 @@ class kraken2Test(unittest.TestCase):
                                            {'workspace_name': self.wsName,
                                             'input_genomes': [],
                                             'input_refs': input_refs,
-                                            'input_paired_refs': input_paired_refs,
+                                            'input_paired_refs':
+                                                input_paired_refs,
                                             'db_type': 'minikraken2_v1_8GB'
                                             })
             print(f'ret {ret[0]}')
@@ -124,6 +127,7 @@ class kraken2Test(unittest.TestCase):
                                             'input_paired_refs':
                                                 input_paired_refs,
                                             'db_type': 'minikraken2_v1_8GB'})
+        print(f'ret {ret[0]}')
         self.assertTrue('report_name' in ret[0].keys())
         self.assertTrue('report_ref' in ret[0].keys())
         self.assertTrue('report_params' in ret[0].keys())
@@ -133,9 +137,10 @@ class kraken2Test(unittest.TestCase):
                          ret[0]['report_params']['file_links'][1]['name'])
         self.assertEqual('kraken2_output.zip',
                          ret[0]['report_params']['file_links'][2]['name'])
-        self.assertIn('test_Kraken2_', ret[0]['report_params']['workspace_name'])
+        self.assertIn('test_Kraken2_', ret[0]['report_params']
+        ['workspace_name'])
         self.assertIn('minikraken2_v1_8GB', ret[0]['report_params']['message'])
-        print(f'ret {ret[0]}')
+
 
         # Test with Assemblies
         ret = self.serviceImpl.run_kraken2(self.ctx,
@@ -154,19 +159,43 @@ class kraken2Test(unittest.TestCase):
                          ret[0]['report_params']['file_links'][1]['name'])
         self.assertEqual('kraken2_output.zip',
                          ret[0]['report_params']['file_links'][2]['name'])
-        self.assertIn('test_Kraken2_', ret[0]['report_params']['workspace_name'])
-        self.assertIn('Shewanella_oneidensis_MR-1_assembly.fa', ret[0]['report_params']['message'])
+        self.assertIn('test_Kraken2_', ret[0]['report_params']
+        ['workspace_name'])
+        self.assertIn('Shewanella_oneidensis_MR-1_assembly.fa',
+                      ret[0]['report_params']['message'])
         self.assertIn('minikraken2_v1_8GB', ret[0]['report_params']['message'])
 
-
     def test_kraken2(self):
-        self.assertTrue(os.path.exists('/data/kraken2/16S_Greengenes_20190418'))
+        print('test_kraken2')
+        self.assertTrue(
+            os.path.exists('/data/kraken2/16S_Greengenes_20190418'))
         self.assertTrue(os.path.exists(
             '/data/kraken2/minikraken2_v1_8GB/database100mers.kmer_distrib'))
 
-        # Test fasta input
+        # Test fasta input with kraken-microbial database -- much larger db and
+        # takes a long time to run
+        # cmd = ['kraken2', '-db', '/data/kraken2/kraken-microbial',
+        #        '--report', 'test_fasta.txt', '--threads', '1',
+        #        '/data/kraken2/test.fasta']
+        # logging.info(f'cmd {cmd}')
+        # p = subprocess.Popen(cmd, stdout=subprocess.PIPE,
+        #                      stderr=subprocess.STDOUT)
+        # logging.info(p.communicate())
+        #
+        # self.assertTrue(os.path.exists('test_fasta.txt'))
+        # logging.info(f'current directory {os.getcwd()}')
+        # with open('test_fasta.txt', 'r') as fp:
+        #     logging.info('print summary')
+        #     lines = fp.readlines()
+        #     # for line in lines:
+        #     #     logging.info(line.split('\t')[-1].strip())
+        # self.assertEqual(lines[-1].split('\t')[-1].strip(),
+        # 'Zaire ebolavirus')
+
+        # Test fasta input with minikraken2 db
         cmd = ['kraken2', '-db', '/data/kraken2/minikraken2_v1_8GB',
-               '--report', 'test_fasta.txt', '--threads', '1', '/data/kraken2/test.fasta']
+               '--report', 'test_fasta.txt', '--threads', '1',
+               '/data/kraken2/test.fasta']
         logging.info(f'cmd {cmd}')
         p = subprocess.Popen(cmd, stdout=subprocess.PIPE,
                              stderr=subprocess.STDOUT)
@@ -197,4 +226,5 @@ class kraken2Test(unittest.TestCase):
             lines = fp.readlines()
             for line in lines:
                 logging.info(line.split('\t')[-1].strip())
-        self.assertEqual(lines[-1].split('\t')[-1].strip(), 'Borrelia miyamotoi')
+        self.assertEqual(lines[-1].split('\t')[-1].strip(),
+                         'Borrelia miyamotoi')
