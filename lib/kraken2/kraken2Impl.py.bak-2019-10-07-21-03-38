@@ -29,7 +29,7 @@ class kraken2:
     ######################################### noqa
     VERSION = "0.0.1"
     GIT_URL = "git@github.com:mflynn-lanl/kbase-kraken2.git"
-    GIT_COMMIT_HASH = "2993ea6b7451e8867881789e82f31252c504ea61"
+    GIT_COMMIT_HASH = "c3ea092d20ef7407841f8805d8c0bb7a351674b5"
 
     #BEGIN_CLASS_HEADER
     def _generate_report_table(self, report_df, outfile, output_dir):
@@ -244,7 +244,7 @@ class kraken2:
                                stderr=subprocess.STDOUT)
         logging.info(f'subprocess {pls.communicate()}')
 
-        cmd1 = ["ls", output_dir]
+        cmd1 = ["ls", self.shared_folder]
         logging.info(f'cmd {cmd1}')
         pls = subprocess.Popen(cmd1, stdout=subprocess.PIPE,
                                stderr=subprocess.STDOUT)

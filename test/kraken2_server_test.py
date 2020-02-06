@@ -108,10 +108,12 @@ class kraken2Test(unittest.TestCase):
         self.assertTrue('report_name' in ret[0].keys())
         self.assertTrue('report_ref' in ret[0].keys())
         self.assertTrue('report_params' in ret[0].keys())
-        self.assertEqual('report.txt',
+        self.assertEqual('df_style.css',
                          ret[0]['report_params']['file_links'][0]['name'])
-        self.assertEqual('kraken2_output.zip',
+        self.assertEqual('report.txt',
                          ret[0]['report_params']['file_links'][1]['name'])
+        self.assertEqual('kraken2_output.zip',
+                         ret[0]['report_params']['file_links'][2]['name'])
         self.assertIn('test_Kraken2_',
                       ret[0]['report_params']['workspace_name'])
         self.assertIn('minikraken2_v1_8GB', ret[0]['report_params']['message'])
@@ -125,10 +127,12 @@ class kraken2Test(unittest.TestCase):
         self.assertTrue('report_name' in ret[0].keys())
         self.assertTrue('report_ref' in ret[0].keys())
         self.assertTrue('report_params' in ret[0].keys())
-        self.assertEqual('report.txt',
+        self.assertEqual('df_style.css',
                          ret[0]['report_params']['file_links'][0]['name'])
-        self.assertEqual('kraken2_output.zip',
+        self.assertEqual('report.txt',
                          ret[0]['report_params']['file_links'][1]['name'])
+        self.assertEqual('kraken2_output.zip',
+                         ret[0]['report_params']['file_links'][2]['name'])
         self.assertIn('test_Kraken2_', ret[0]['report_params']['workspace_name'])
         self.assertIn('minikraken2_v1_8GB', ret[0]['report_params']['message'])
         print(f'ret {ret[0]}')
@@ -144,10 +148,12 @@ class kraken2Test(unittest.TestCase):
         self.assertTrue('report_name' in ret[0].keys())
         self.assertTrue('report_ref' in ret[0].keys())
         self.assertTrue('report_params' in ret[0].keys())
-        self.assertEqual('report.txt',
+        self.assertEqual('df_style.css',
                          ret[0]['report_params']['file_links'][0]['name'])
-        self.assertEqual('kraken2_output.zip',
+        self.assertEqual('report.txt',
                          ret[0]['report_params']['file_links'][1]['name'])
+        self.assertEqual('kraken2_output.zip',
+                         ret[0]['report_params']['file_links'][2]['name'])
         self.assertIn('test_Kraken2_', ret[0]['report_params']['workspace_name'])
         self.assertIn('Shewanella_oneidensis_MR-1_assembly.fa', ret[0]['report_params']['message'])
         self.assertIn('minikraken2_v1_8GB', ret[0]['report_params']['message'])
