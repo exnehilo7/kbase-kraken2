@@ -15,18 +15,21 @@ MAINTAINER Mark Flynn
 #    apt-get install -y build-essential wget unzip python2.7 \
 #    python-dev git python-pip curl autoconf autogen libssl-dev \
 #    ncbi-blast+
-RUN pip install pandas && \
-    apt update && \
+RUN conda install -yc \
+    bioconda pandas kraken2 jinja2 nose requests \
+    && pip install jsonrpcbase
+#RUN pip install pandas && \
+RUN    apt update && \
     apt-get install -y build-essential wget unzip git curl autoconf autogen libssl-dev \
     ncbi-blast+
 # Install kraken2
-RUN cd /usr/ && \
-    wget http://github.com/DerrickWood/kraken2/archive/v2.0.7-beta.tar.gz && \
-    tar xzvf v2.0.7-beta.tar.gz && \
-    cd kraken2-2.0.7-beta && \
-    ./install_kraken2.sh /usr/local/bin/kraken2-v2.0.7 && \
-    ln -s /usr/local/bin/kraken2-v2.0.7/kraken2* /usr/local/bin/ && \
-    kraken2-build -h
+#RUN cd /usr/ && \
+#    wget http://github.com/DerrickWood/kraken2/archive/v2.0.7-beta.tar.gz && \
+#    tar xzvf v2.0.7-beta.tar.gz && \
+#    cd kraken2-2.0.7-beta && \
+#    ./install_kraken2.sh /usr/local/bin/kraken2-v2.0.7 && \
+#    ln -s /usr/local/bin/kraken2-v2.0.7/kraken2* /usr/local/bin/ && \
+#    kraken2-build -h
 COPY ./ /kb/module
 RUN mkdir -p /kb/module/work
 RUN chmod -R a+rw /kb/module

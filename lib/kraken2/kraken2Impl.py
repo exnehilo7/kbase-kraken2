@@ -244,7 +244,7 @@ class kraken2:
                                stderr=subprocess.STDOUT)
         logging.info(f'subprocess {pls.communicate()}')
 
-        cmd1 = ["ls", self.shared_folder]
+        cmd1 = ["ls", output_dir]
         logging.info(f'cmd {cmd1}')
         pls = subprocess.Popen(cmd1, stdout=subprocess.PIPE,
                                stderr=subprocess.STDOUT)
