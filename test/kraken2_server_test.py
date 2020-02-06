@@ -101,7 +101,7 @@ class kraken2Test(unittest.TestCase):
                                                 input_paired_refs,
                                             'db_type': 'minikraken2_v1_8GB'
                                             })
-            print(f'ret {ret[0]}')
+
 
         # Test with single-ended reads
         ret = self.serviceImpl.run_kraken2(self.ctx,
@@ -111,6 +111,7 @@ class kraken2Test(unittest.TestCase):
         self.assertTrue('report_name' in ret[0].keys())
         self.assertTrue('report_ref' in ret[0].keys())
         self.assertTrue('report_params' in ret[0].keys())
+        print(f"ret {ret[0]['report_params']['file_links']}")
         self.assertEqual('df_style.css',
                          ret[0]['report_params']['file_links'][0]['name'])
         self.assertEqual('report.txt',
