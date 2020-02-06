@@ -227,5 +227,5 @@ class kraken2Test(unittest.TestCase):
             lines = fp.readlines()
             for line in lines:
                 logging.info(line.split('\t')[-1].strip())
-        self.assertEqual(lines[-1].split('\t')[-1].strip(),
+        self.assertEqual(lines[-1].strip(),
                          'Borrelia miyamotoi')
