@@ -154,12 +154,19 @@ class kraken2Test(unittest.TestCase):
         self.assertTrue('report_name' in ret[0].keys())
         self.assertTrue('report_ref' in ret[0].keys())
         self.assertTrue('report_params' in ret[0].keys())
-        self.assertEqual('df_style.css',
-                         ret[0]['report_params']['file_links'][0]['name'])
-        self.assertEqual('report.txt',
-                         ret[0]['report_params']['file_links'][1]['name'])
-        self.assertEqual('kraken2_output.zip',
-                         ret[0]['report_params']['file_links'][2]['name'])
+        file_flags = [False, False, False]
+        for link in ret[0]['report_params']['file_links']:
+            file_flags[0] = True if link['name'] == 'df_style.css' else file_flags[0]
+            file_flags[1] = True if link['name'] == 'report.txt' else file_flags[1]
+            file_flags[2] = True if link['name'] == 'kraken2_output.zip' else file_flags[2]
+
+        [self.assertTrue(flag) for flag in file_flags]
+        # self.assertEqual('df_style.css',
+        #                  ret[0]['report_params']['file_links'][0]['name'])
+        # self.assertEqual('report.txt',
+        #                  ret[0]['report_params']['file_links'][1]['name'])
+        # self.assertEqual('kraken2_output.zip',
+        #                  ret[0]['report_params']['file_links'][2]['name'])
         self.assertIn('test_Kraken2_', ret[0]['report_params']
         ['workspace_name'])
         self.assertIn('Shewanella_oneidensis_MR-1_assembly.fa',
