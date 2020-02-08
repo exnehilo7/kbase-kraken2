@@ -193,7 +193,7 @@ class kraken2:
                 f"download_reads_output {download_reads_output}")
             fastq_files = []
             fastq_files_name = []
-            input_string.append('--paired')
+            # input_string.append('--paired')
             for key, val in download_reads_output['files'].items():
                 if 'fwd' in val['files'] and val['files']['fwd']:
                     fastq_files.append(val['files']['fwd'])
