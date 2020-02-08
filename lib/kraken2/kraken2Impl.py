@@ -201,8 +201,8 @@ class kraken2:
                 if 'rev' in val['files'] and val['files']['rev']:
                     fastq_files.append(val['files']['rev'])
                     fastq_files_name.append(val['files']['rev_name'])
-            if len(fastq_files) % 2 != 0:
-                raise ValueError('There must be an even number of Paired-end reads files')
+            # if len(fastq_files) % 2 != 0:
+            #     raise ValueError('There must be an even number of Paired-end reads files')
             logging.info(f"fastq files {fastq_files}")
             input_string.extend(fastq_files)
 
