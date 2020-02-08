@@ -40,7 +40,7 @@
 			"default_values": [ "" ],
 			"field_type": "text",
 			"text_options": {
-				"valid_ws_types": [ "KBaseSets.ReadsSet", "KBaseFile.SingleEndLibrary"]
+				"valid_ws_types": [ "KBaseSets.ReadsSet", "KBaseFile.PairedEndLibrary"]
 			}
 		},
         {
@@ -48,7 +48,7 @@
 			"optional": false,
 			"advanced": false,
 			"allow_multiple": false,
-			"default_values": ["minikraken2_v1_8GB"],
+			"default_values": ["kraken2-microbial"],
 			"field_type": "dropdown",
 				"dropdown_options": {
 					"options": [
