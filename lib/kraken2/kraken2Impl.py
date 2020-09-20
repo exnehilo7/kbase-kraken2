@@ -4,6 +4,7 @@ import logging
 import os
 import subprocess
 import pandas as pd
+import shutil
 
 from installed_clients.KBaseReportClient import KBaseReport
 from installed_clients.ReadsUtilsClient import ReadsUtils
@@ -32,6 +33,37 @@ class kraken2:
     GIT_COMMIT_HASH = "2993ea6b7451e8867881789e82f31252c504ea61"
 
     #BEGIN_CLASS_HEADER
+    def _generate_DataTable(self, infile, outfile):
+        f =  open(infile, "r")
+        wf = open(outfile,"w")
+
+        header = f.readline().strip()
+        headerlist = [ x.strip() for x in header.split('\t')]
+
+        wf.write("<head>\n")
+        wf.write("<link rel='stylesheet' type='text/css' href='https://cdn.datatables.net/1.10.19/css/jquery.dataTables.css'>\n")
+        wf.write("<script type='text/javascript' charset='utf8' src='https://code.jquery.com/jquery-3.3.1.js'></script>\n")
+        wf.write("<script type='text/javascript' charset='utf8' src='https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js'></script>\n")
+        wf.write("</head>\n")
+        wf.write("<body>\n")
+        wf.write("""<script>
+        $(document).ready(function() {
+            $('#gottcha2_result_table').DataTable();
+        } );
+        </script>""")
+        wf.write("<table id='gottcha2_result_table' class='display' style=''>\n")
+        wf.write('<thead><tr>' + ''.join("<th>{0}</th>".format(t) for t in headerlist) + '</tr></thead>\n')
+        wf.write("<tbody>\n")
+        for line in f:
+            if not line.strip():continue
+            wf.write("<tr>\n")
+            temp = [ x.strip() for x in line.split('\t')]
+            wf.write(''.join("<td>{0}</td>".format(t) for t in temp))
+            wf.write("</tr>\n")
+        wf.write("</tbody>\n")
+        wf.write("</table>")
+        wf.write("</body>\n")
+
     def _generate_report_table(self, report_df, outfile, output_dir):
         pd.set_option('colheader_justify', 'center')  # FOR TABLE <th>
         with open(os.path.join(output_dir, 'df_style.css'), 'w') as fp:
@@ -115,6 +147,7 @@ class kraken2:
         #BEGIN run_kraken2
 
         # Download input data as FASTA or FASTQ
+        logging.info('Calling run_kraken2')
         logging.info(f'params {params}')
         # Check for presence of input file types in params
         input_genomes = 'input_genomes' in params and len(params['input_genomes']) > 0 and None not in params['input_genomes']
@@ -215,59 +248,54 @@ class kraken2:
             os.makedirs(output_dir)
 
 
-        # cmd = ['/kb/module/lib/kraken2/src/kraken2.sh', '--report',
-        #        f'{fasta_file}.txt',
-        #        '--db', '/data/kraken2/' + params['db_type'], '--threads', '1',
-        #        '--input', fasta_file]
+        cmd = ['/kb/module/lib/kraken2/src/kraken2.sh',
+               '-d', '/data/kraken2/' + params['db_type'],
+               '-o', output_dir, '-p', 'kraken2',
+               '-t', '1', '-i']
 
-
-        cmd = ['kraken2', '-db', '/data/kraken2/' + params['db_type'],
-               '--output', output_dir, '--report', report_file,
-               '--threads', '1']
+        # cmd = ['kraken2', '--db', '/data/kraken2/' + params['db_type'],
+        #        '--output', output_dir, '--report', report_file,
+        #        '--threads', '1']
         cmd.extend(['--confidence', str(params['confidence'])]) if 'confidence' in params else cmd
+
 
         cmd.extend(input_string)
         logging.info(f'cmd {cmd}')
         p = subprocess.Popen(cmd, stdout=subprocess.PIPE,
                              stderr=subprocess.STDOUT)
         logging.info(f'subprocess {p.communicate()}')
+        outprefix = "kraken2"
 
-        cmd0 = ["ls", '/kb/module/']
-        logging.info(f'cmd {cmd0}')
-        pls = subprocess.Popen(cmd0, stdout=subprocess.PIPE,
-                               stderr=subprocess.STDOUT)
-        logging.info(f'subprocess {pls.communicate()}')
+        summary_file = os.path.join(output_dir, outprefix + '.report.csv')
+        report_dir = os.path.join(output_dir, 'html_report')
+        if not os.path.exists(report_dir):
+            os.makedirs(report_dir)
+        summary_file_dt = os.path.join(report_dir, 'kraken2.datatable.html')
+        self._generate_DataTable(summary_file, summary_file_dt)
+        shutil.copy2('/kb/module/lib/kraken2/src/index.html', os.path.join(report_dir, 'index.html'))
+        shutil.copy2(os.path.join(output_dir, outprefix + '.krona.html'),
+                     os.path.join(report_dir, 'kraken2.krona.html'))
+        shutil.move(os.path.join(output_dir, outprefix + '.tree.svg'), os.path.join(report_dir, 'kraken2.tree.svg'))
+        html_zipped = self.package_folder(report_dir, 'index.html', 'index.html')
 
-        cmd1 = ["ls", '/kb/module/test/']
-        logging.info(f'cmd {cmd1}')
-        pls = subprocess.Popen(cmd1, stdout=subprocess.PIPE,
-                               stderr=subprocess.STDOUT)
-        logging.info(f'subprocess {pls.communicate()}')
+        # columns = [
+        #     'Percentage of fragments covered by the clade rooted at this taxon',
+        #     'Number of fragments covered by the clade rooted at this taxon',
+        #     'Number of fragments assigned directly to this taxon', 'rank code',
+        #     'taxid', 'name']
+        # report_df = pd.read_csv(report_file, sep='\t',
+        #                         header=None, names=columns)
+        # code_dict = {'U': 'Unclassified', 'R': 'Root', 'D': 'Domain',
+        #              'K': 'Kingdom', 'P': 'Phylum', 'C': 'Class', 'O': 'Order',
+        #              'F': 'Family', 'G': 'Genus', 'S': 'Species'}
+        # report_df['rank code'] = report_df['rank code'].apply(
+        #     lambda x: code_dict[x[0]] + x[1] if len(x) > 1 else code_dict[x])
 
-        cmd1 = ["ls", output_dir]
-        logging.info(f'cmd {cmd1}')
-        pls = subprocess.Popen(cmd1, stdout=subprocess.PIPE,
-                               stderr=subprocess.STDOUT)
-        logging.info(f'subprocess {pls.communicate()}')
-        # generate report directory and html file
-        columns = [
-            'Percentage of fragments covered by the clade rooted at this taxon',
-            'Number of fragments covered by the clade rooted at this taxon',
-            'Number of fragments assigned directly to this taxon', 'rank code',
-            'taxid', 'name']
-        report_df = pd.read_csv(report_file, sep='\t',
-                                header=None, names=columns)
-        code_dict = {'U': 'Unclassified', 'R': 'Root', 'D': 'Domain',
-                     'K': 'Kingdom', 'P': 'Phylum', 'C': 'Class', 'O': 'Order',
-                     'F': 'Family', 'G': 'Genus', 'S': 'Species'}
-        report_df['rank code'] = report_df['rank code'].apply(
-            lambda x: code_dict[x[0]] + x[1] if len(x) > 1 else code_dict[x])
 
-        report_html_file = os.path.join(output_dir, 'report.html')
-        self._generate_report_table(report_df, report_html_file, output_dir)
+        # self._generate_report_table(report_df, report_html_file, output_dir)
         # report_df.to_html(report_html_file, classes='Kraken2_report', index=False)
-        html_zipped = self.package_folder(output_dir, 'report.html',
-                                          'report')
+        # html_zipped = self.package_folder(output_dir, 'report.html',
+        #                                   'report')
         # Step 5 - Build a Report and return
         objects_created = []
         output_files = os.listdir(output_dir)

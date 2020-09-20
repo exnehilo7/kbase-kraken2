@@ -17,11 +17,17 @@ MAINTAINER Mark Flynn
 #    ncbi-blast+
 RUN conda install -yc \
     bioconda pandas kraken2 jinja2 nose requests \
-    && pip install jsonrpcbase
+    && pip install jsonrpcbase coverage
 #RUN pip install pandas && \
+WORKDIR /kb/module
 RUN    apt update && \
-    apt-get install -y build-essential wget unzip git curl autoconf autogen libssl-dev \
-    ncbi-blast+
+    apt-get install -y build-essential wget unzip git curl autoconf autogen libssl-dev bioperl ncbi-blast+ && \
+    cd ../ && \
+    git clone https://github.com/marbl/Krona && \
+    cd Krona/KronaTools && \
+    ./install.pl --prefix /kb/deployment && \
+    mkdir taxonomy && \
+    ./updateTaxonomy.sh
 # Install kraken2
 #RUN cd /usr/ && \
 #    wget http://github.com/DerrickWood/kraken2/archive/v2.0.7-beta.tar.gz && \
