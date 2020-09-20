@@ -133,25 +133,25 @@ class kraken2Test(unittest.TestCase):
         self.assertIn('minikraken2_v1_8GB', ret[0]['report_params']['message'])
     #
     #     # Test with paired single-end reads
-    #     ret = self.serviceImpl.run_kraken2(self.ctx,
-    #                                        {'workspace_name': self.wsName,
-    #                                         'input_paired_refs':
-    #                                             input_paired_refs,
-    #                                         'db_type': 'minikraken2_v1_8GB'})
-    #     print(f'ret {ret[0]}')
-    #     self.assertTrue('report_name' in ret[0].keys())
-    #     self.assertTrue('report_ref' in ret[0].keys())
-    #     self.assertTrue('report_params' in ret[0].keys())
-    #     file_flags = [False, False, False]
-    #     for link in ret[0]['report_params']['file_links']:
-    #         file_flags[0] = True if link['name'] == 'df_style.css' else \
-    #         file_flags[0]
-    #         file_flags[1] = True if link['name'] == 'report.txt' else \
-    #         file_flags[1]
-    #         file_flags[2] = True if link['name'] == 'kraken2_output.zip' else \
-    #         file_flags[2]
-    #     [print(flag) for flag in file_flags]
-    #     # [self.assertTrue(flag) for flag in file_flags]
+        ret = self.serviceImpl.run_kraken2(self.ctx,
+                                           {'workspace_name': self.wsName,
+                                            'input_paired_refs':
+                                                input_paired_refs,
+                                            'db_type': 'minikraken2_v1_8GB'})
+        print(f'ret {ret[0]}')
+        self.assertTrue('report_name' in ret[0].keys())
+        self.assertTrue('report_ref' in ret[0].keys())
+        self.assertTrue('report_params' in ret[0].keys())
+        file_flags = [False, False, False]
+        for link in ret[0]['report_params']['file_links']:
+            file_flags[0] = True if link['name'] == 'kraken2.out.tab_tree' else \
+            file_flags[0]
+            file_flags[1] = True if link['name'] == 'kraken2.report.csv' else \
+            file_flags[1]
+            file_flags[2] = True if link['name'] == 'kraken2.krona.html' else \
+            file_flags[2]
+        [print(flag) for flag in file_flags]
+        [self.assertTrue(flag) for flag in file_flags]
     #     # self.assertEqual('df_style.css',
     #     #                  ret[0]['report_params']['file_links'][0]['name'])
     #     # self.assertEqual('report.txt',
@@ -164,23 +164,23 @@ class kraken2Test(unittest.TestCase):
     #
     #
     #     # Test with Assemblies
-    #     ret = self.serviceImpl.run_kraken2(self.ctx,
-    #                                        {'workspace_name': self.wsName,
-    #                                         'input_genomes': input_genomes,
-    #                                         'confidence': 0.1,
-    #                                         'db_type': 'minikraken2_v1_8GB'})
-    #
-    #     print("report", ret[0])
-    #     self.assertTrue('report_name' in ret[0].keys())
-    #     self.assertTrue('report_ref' in ret[0].keys())
-    #     self.assertTrue('report_params' in ret[0].keys())
-    #     file_flags = [False, False, False]
-    #     for link in ret[0]['report_params']['file_links']:
-    #         file_flags[0] = True if link['name'] == 'df_style.css' else file_flags[0]
-    #         file_flags[1] = True if link['name'] == 'report.txt' else file_flags[1]
-    #         file_flags[2] = True if link['name'] == 'kraken2_output.zip' else file_flags[2]
-    #     [print(flag) for flag in file_flags]
-    #     [self.assertTrue(flag) for flag in file_flags]
+        ret = self.serviceImpl.run_kraken2(self.ctx,
+                                           {'workspace_name': self.wsName,
+                                            'input_genomes': input_genomes,
+                                            'confidence': 0.1,
+                                            'db_type': 'minikraken2_v1_8GB'})
+
+        print("report", ret[0])
+        self.assertTrue('report_name' in ret[0].keys())
+        self.assertTrue('report_ref' in ret[0].keys())
+        self.assertTrue('report_params' in ret[0].keys())
+        file_flags = [False, False, False]
+        for link in ret[0]['report_params']['file_links']:
+            file_flags[0] = True if link['name'] == 'kraken2.out.tab_tree' else file_flags[0]
+            file_flags[1] = True if link['name'] == 'kraken2.report.csv' else file_flags[1]
+            file_flags[2] = True if link['name'] == 'kraken2.krona.html' else file_flags[2]
+        [print(flag) for flag in file_flags]
+        [self.assertTrue(flag) for flag in file_flags]
     #     # self.assertEqual('df_style.css',
     #     #                  ret[0]['report_params']['file_links'][0]['name'])
     #     # self.assertEqual('report.txt',
