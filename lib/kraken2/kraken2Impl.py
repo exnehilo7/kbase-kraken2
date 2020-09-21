@@ -257,7 +257,7 @@ class kraken2:
         # cmd = ['kraken2', '--db', '/data/kraken2/' + params['db_type'],
         #        '--output', output_dir, '--report', report_file,
         #        '--threads', '1']
-        cmd.extend(['--confidence', str(params['confidence'])]) if 'confidence' in params else cmd
+        # cmd.extend(['--confidence', str(params['confidence'])]) if 'confidence' in params else cmd
 
         logging.info(f'cmd {cmd}')
         p = subprocess.Popen(cmd, stdout=subprocess.PIPE,
