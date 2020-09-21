@@ -246,25 +246,24 @@ class kraken2:
         report_file = os.path.join(output_dir, report_file_name)
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
-
+        outprefix = "kraken2"
 
         cmd = ['/kb/module/lib/kraken2/src/kraken2.sh',
                '-d', '/data/kraken2/' + params['db_type'],
-               '-o', output_dir, '-p', 'kraken2',
+               '-o', output_dir, '-p', outprefix,
                '-t', '1', '-i']
+        cmd.extend(input_string)
 
         # cmd = ['kraken2', '--db', '/data/kraken2/' + params['db_type'],
         #        '--output', output_dir, '--report', report_file,
         #        '--threads', '1']
         cmd.extend(['--confidence', str(params['confidence'])]) if 'confidence' in params else cmd
 
-
-        cmd.extend(input_string)
         logging.info(f'cmd {cmd}')
         p = subprocess.Popen(cmd, stdout=subprocess.PIPE,
                              stderr=subprocess.STDOUT)
         logging.info(f'subprocess {p.communicate()}')
-        outprefix = "kraken2"
+
 
         summary_file = os.path.join(output_dir, outprefix + '.report.csv')
         report_dir = os.path.join(output_dir, 'html_report')
