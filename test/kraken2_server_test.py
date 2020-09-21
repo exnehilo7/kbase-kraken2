@@ -5,6 +5,7 @@ import unittest
 from configparser import ConfigParser
 import subprocess
 import logging
+from pprint import pprint
 
 from kraken2.kraken2Impl import kraken2
 from kraken2.kraken2Server import MethodContext
@@ -54,7 +55,8 @@ class kraken2Test(unittest.TestCase):
         if hasattr(cls, 'wsName'):
             cls.wsClient.delete_workspace({'workspace': cls.wsName})
             print('Test workspace was deleted')
-
+    def getWsClient(self):
+        return self.__class__.wsClient
     # NOTE: According to Python unittest naming rules test method names
     # should start from 'test'. # noqa
     def test_param(self):
@@ -70,6 +72,7 @@ class kraken2Test(unittest.TestCase):
         # self.assertEqual(ret[...], ...) or other unittest methods
         input_genomes = ["79/16/1"]
         input_refs = ['22956/5/2']
+        refs = ['22956/22/1']
         input_paired_refs = ['22956/8/1', '22956/7/1']
         print(f"input_refs {input_refs}")
     #
@@ -104,101 +107,49 @@ class kraken2Test(unittest.TestCase):
     #
     #
         # Test with single-ended reads
-        ret = self.serviceImpl.run_kraken2(self.ctx,
+        # result = self.serviceImpl.run_kraken2(self.ctx,
+        #                                    {'workspace_name': self.wsName,
+        #                                     'input_refs': refs,
+        #                                     'db_type': 'minikraken2_v1_8GB'})[0]
+        # logging.info(f"report_ref {result}")
+        # logging.info(f"report_ref {result['report_ref']}")
+        # self.assertIn('report_name', result)
+        # self.assertIn('report_ref', result)
+        # report = self.getWsClient().get_objects2({'objects': [{'ref': result['report_ref']}]})['data'][0]['data']
+        # logging.info(f'print report {report}')
+        # pprint(report)
+        # self.assertIn('direct_html', report)
+        # self.assertIn('file_links', report)
+        # self.assertIn('html_links', report)
+        # self.assertIn('objects_created', report)
+        # self.assertIn('text_message', report)
+
+        result = self.serviceImpl.run_kraken2(self.ctx,
                                            {'workspace_name': self.wsName,
-                                            'input_refs': input_refs,
-                                            'db_type': 'minikraken2_v1_8GB'})
-        self.assertTrue('report_name' in ret[0].keys())
-        self.assertTrue('report_ref' in ret[0].keys())
-        self.assertTrue('report_params' in ret[0].keys())
-        print(f"ret {ret[0]['report_params']['file_links']}")
-        file_flags = [False, False, False]
-        for link in ret[0]['report_params']['file_links']:
-            file_flags[0] = True if link['name'] == 'kraken2.out.tab_tree' else \
-            file_flags[0]
-            file_flags[1] = True if link['name'] == 'kraken2.report.csv' else \
-            file_flags[1]
-            file_flags[2] = True if link['name'] == 'kraken2.krona.html' else \
-            file_flags[2]
-        [logging.info(flag) for flag in file_flags]
-        [self.assertTrue(flag) for flag in file_flags]
-        # self.assertEqual('df_style.css',
-        #                  ret[0]['report_params']['file_links'][0]['name'])
-        # self.assertEqual('report.txt',
-        #                  ret[0]['report_params']['file_links'][1]['name'])
-        # self.assertEqual('kraken2_output.zip',
-        #                  ret[0]['report_params']['file_links'][2]['name'])
-        self.assertIn('test_Kraken2_',
-                      ret[0]['report_params']['workspace_name'])
-        self.assertIn('minikraken2_v1_8GB', ret[0]['report_params']['message'])
-    #
-    #     # Test with paired single-end reads
-        ret = self.serviceImpl.run_kraken2(self.ctx,
-                                           {'workspace_name': self.wsName,
-                                            'input_paired_refs':
-                                                input_paired_refs,
-                                            'db_type': 'minikraken2_v1_8GB'})
-        print(f'ret {ret[0]}')
-        self.assertTrue('report_name' in ret[0].keys())
-        self.assertTrue('report_ref' in ret[0].keys())
-        self.assertTrue('report_params' in ret[0].keys())
-        file_flags = [False, False, False]
-        for link in ret[0]['report_params']['file_links']:
-            file_flags[0] = True if link['name'] == 'kraken2.out.tab_tree' else \
-            file_flags[0]
-            file_flags[1] = True if link['name'] == 'kraken2.report.csv' else \
-            file_flags[1]
-            file_flags[2] = True if link['name'] == 'kraken2.krona.html' else \
-            file_flags[2]
-        [print(flag) for flag in file_flags]
-        [self.assertTrue(flag) for flag in file_flags]
-    #     # self.assertEqual('df_style.css',
-    #     #                  ret[0]['report_params']['file_links'][0]['name'])
-    #     # self.assertEqual('report.txt',
-    #     #                  ret[0]['report_params']['file_links'][1]['name'])
-    #     # self.assertEqual('kraken2_output.zip',
-    #     #                  ret[0]['report_params']['file_links'][2]['name'])
-    #     self.assertIn('test_Kraken2_', ret[0]['report_params']
-    #     ['workspace_name'])
-    #     self.assertIn('minikraken2_v1_8GB', ret[0]['report_params']['message'])
-    #
-    #
-    #     # Test with Assemblies
-        ret = self.serviceImpl.run_kraken2(self.ctx,
-                                           {'workspace_name': self.wsName,
-                                            'input_genomes': input_genomes,
+                                            'input_refs': ['22956/59/1'],
                                             'confidence': 0.1,
-                                            'db_type': 'minikraken2_v1_8GB'})
+                                            'db_type': 'minikraken2_v1_8GB'})[0]
 
-        print("report", ret[0])
-        self.assertTrue('report_name' in ret[0].keys())
-        self.assertTrue('report_ref' in ret[0].keys())
-        self.assertTrue('report_params' in ret[0].keys())
-        file_flags = [False, False, False]
-        for link in ret[0]['report_params']['file_links']:
-            file_flags[0] = True if link['name'] == 'kraken2.out.tab_tree' else file_flags[0]
-            file_flags[1] = True if link['name'] == 'kraken2.report.csv' else file_flags[1]
-            file_flags[2] = True if link['name'] == 'kraken2.krona.html' else file_flags[2]
-        [print(flag) for flag in file_flags]
-        [self.assertTrue(flag) for flag in file_flags]
-    #     # self.assertEqual('df_style.css',
-    #     #                  ret[0]['report_params']['file_links'][0]['name'])
-    #     # self.assertEqual('report.txt',
-    #     #                  ret[0]['report_params']['file_links'][1]['name'])
-    #     # self.assertEqual('kraken2_output.zip',
-    #     #                  ret[0]['report_params']['file_links'][2]['name'])
-    #     self.assertIn('test_Kraken2_', ret[0]['report_params']
-    #     ['workspace_name'])
-    #     self.assertIn('Shewanella_oneidensis_MR-1_assembly.fa',
-    #                   ret[0]['report_params']['message'])
-    #     self.assertIn('minikraken2_v1_8GB', ret[0]['report_params']['message'])
+        logging.info(f"report_ref {result}")
+        logging.info(f"report_ref {result['report_ref']}")
+        self.assertIn('report_name', result)
+        self.assertIn('report_ref', result)
+        report = self.getWsClient().get_objects2({'objects': [{'ref': result['report_ref']}]})['data'][0]['data']
+        logging.info(f'print report {report}')
+        pprint(report)
+        self.assertIn('direct_html', report)
+        self.assertIn('file_links', report)
+        self.assertIn('html_links', report)
+        self.assertIn('objects_created', report)
+        self.assertIn('text_message', report)
 
-    def test_kraken2(self):
-        print('test_kraken2')
-        self.assertTrue(
-            os.path.exists('/data/kraken2/16S_Greengenes_20190418'))
-        self.assertTrue(os.path.exists(
-            '/data/kraken2/minikraken2_v1_8GB/database100mers.kmer_distrib'))
+
+    # def test_kraken2(self):
+    #     print('test_kraken2')
+    #     self.assertTrue(
+    #         os.path.exists('/data/kraken2/16S_Greengenes_20190418'))
+    #     self.assertTrue(os.path.exists(
+    #         '/data/kraken2/minikraken2_v1_8GB/database100mers.kmer_distrib'))
 
         # Test fasta input with kraken-microbial database -- much larger db and
         # takes a long time to run
@@ -224,49 +175,49 @@ class kraken2Test(unittest.TestCase):
         # cmd = ['kraken2', '-db', '/data/kraken2/minikraken2_v1_8GB',
         #        '--report', 'test_fasta.txt', '--threads', '1',
         #        '/data/kraken2/test.fasta']
-        output_dir = '/kb/module/work/output'
-        output_csv = os.path.join(output_dir, 'kraken2.report.csv')
-        cmd = ['/kb/module/lib/kraken2/src/kraken2.sh',
-               '-d', '/data/kraken2/minikraken2_v1_8GB',
-               '-o', output_dir,'-t','1','-p', 'kraken2',
-               '-i', '/data/kraken2/test.fasta']
-
-        logging.info(f'cmd {cmd}')
-        p = subprocess.Popen(' '.join(cmd), stdout=subprocess.PIPE,
-                             stderr=subprocess.STDOUT, shell=True)
-        logging.info(p.communicate())
-
-        self.assertTrue(os.path.exists(output_csv))
-        logging.info(f'current directory {os.getcwd()}')
-        with open(output_csv, 'r') as fp:
-            logging.info('print summary')
-            lines = fp.readlines()
-            # for line in lines:
-            #     logging.info(line.split('\t')[-1].strip())
-        self.assertEqual(lines[-1].split('\t')[-1].strip(), 'Zaire ebolavirus')
+        # output_dir = '/kb/module/work/output'
+        # output_csv = os.path.join(output_dir, 'kraken2.report.csv')
+        # cmd = ['/kb/module/lib/kraken2/src/kraken2.sh',
+        #        '-d', '/data/kraken2/minikraken2_v1_8GB',
+        #        '-o', output_dir,'-t','1','-p', 'kraken2',
+        #        '-i', '/data/kraken2/test.fasta']
         #
-        # # Test fastq input
-        # cmd = ['kraken2', '-db', '/data/kraken2/minikraken2_v1_8GB',
-        #        '--report', 'test_fastq.txt', '--threads', '1', '--fastq-input',
-        #        '/data/kraken2/test.fastq']
-        cmd = ['/kb/module/lib/kraken2/src/kraken2.sh',
-               '-d', '/data/kraken2/minikraken2_v1_8GB',
-               '-o', output_dir, '-t', '1', '-p', 'kraken2',
-               '-i', '/data/kraken2/test.fastq']
-        logging.info(f'cmd {cmd}')
-        p = subprocess.Popen(cmd, stdout=subprocess.PIPE,
-                             stderr=subprocess.STDOUT, shell=True)
-        logging.info(p.communicate())
-
-        self.assertTrue(os.path.exists(output_csv))
-        logging.info(f'current directory {os.getcwd()}')
-        with open(output_csv, 'r') as fp:
-            logging.info('print summary')
-            lines = fp.readlines()
-            for line in lines:
-                logging.info(line.split('\t')[-1].strip())
-        if len(line.split('\t')) == 0:
-            self.assertEqual(lines[-1].strip(),
-                             'Zaire ebolavirus')
-        else:
-            self.assertEqual(lines[-1].split('\t')[-1].strip(), 'Zaire ebolavirus')
+        # logging.info(f'cmd {cmd}')
+        # p = subprocess.Popen(' '.join(cmd), stdout=subprocess.PIPE,
+        #                      stderr=subprocess.STDOUT, shell=True)
+        # logging.info(p.communicate())
+        #
+        # self.assertTrue(os.path.exists(output_csv))
+        # logging.info(f'current directory {os.getcwd()}')
+        # with open(output_csv, 'r') as fp:
+        #     logging.info('print summary')
+        #     lines = fp.readlines()
+        #     # for line in lines:
+        #     #     logging.info(line.split('\t')[-1].strip())
+        # self.assertEqual(lines[-1].split('\t')[-1].strip(), 'Zaire ebolavirus')
+        # #
+        # # # Test fastq input
+        # # cmd = ['kraken2', '-db', '/data/kraken2/minikraken2_v1_8GB',
+        # #        '--report', 'test_fastq.txt', '--threads', '1', '--fastq-input',
+        # #        '/data/kraken2/test.fastq']
+        # cmd = ['/kb/module/lib/kraken2/src/kraken2.sh',
+        #        '-d', '/data/kraken2/minikraken2_v1_8GB',
+        #        '-o', output_dir, '-t', '1', '-p', 'kraken2',
+        #        '-i', '/data/kraken2/test.fastq']
+        # logging.info(f'cmd {cmd}')
+        # p = subprocess.Popen(cmd, stdout=subprocess.PIPE,
+        #                      stderr=subprocess.STDOUT, shell=True)
+        # logging.info(p.communicate())
+        #
+        # self.assertTrue(os.path.exists(output_csv))
+        # logging.info(f'current directory {os.getcwd()}')
+        # with open(output_csv, 'r') as fp:
+        #     logging.info('print summary')
+        #     lines = fp.readlines()
+        #     for line in lines:
+        #         logging.info(line.split('\t')[-1].strip())
+        # if len(line.split('\t')) == 0:
+        #     self.assertEqual(lines[-1].strip(),
+        #                      'Zaire ebolavirus')
+        # else:
+        #     self.assertEqual(lines[-1].split('\t')[-1].strip(), 'Zaire ebolavirus')
