@@ -18,6 +18,10 @@ MAINTAINER Mark Flynn
 RUN conda install -yc \
     bioconda pandas kraken2 jinja2 nose requests \
     && pip install jsonrpcbase coverage
+
+RUN mkdir -p /kb/data
+COPY ./data/ /kb/data/
+
 #RUN pip install pandas && \
 WORKDIR /kb/module
 RUN    apt update && \

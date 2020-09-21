@@ -1,5 +1,5 @@
 {
-    "ver": "0.0.1",
+    "ver": "0.0.2",
     "authors": [
         "mcflynn617", "chienchilo"
     ],
@@ -11,17 +11,6 @@
     },
     "parameters": [
         {
-            "id": "input_genomes",
-            "optional": true,
-            "advanced": false,
-            "allow_multiple": false,
-            "default_values": [ "" ],
-            "field_type": "text",
-            "text_options": {
-                "valid_ws_types": [ "KBaseGenomeAnnotations.Assembly", "KBaseFile.AssemblyFile", "KBaseGenomes.ContigSet" ]
-            }
-        },
-        {
 			"id": "input_refs",
 			"optional": true,
 			"advanced": false,
@@ -29,18 +18,7 @@
 			"default_values": [ "" ],
 			"field_type": "text",
 			"text_options": {
-				"valid_ws_types": [ "KBaseSets.ReadsSet", "KBaseFile.SingleEndLibrary"]
-			}
-		},
-        {
-			"id": "input_paired_refs",
-			"optional": true,
-			"advanced": false,
-			"allow_multiple": true,
-			"default_values": [ "" ],
-			"field_type": "text",
-			"text_options": {
-				"valid_ws_types": [ "KBaseSets.ReadsSet", "KBaseFile.PairedEndLibrary"]
+				"valid_ws_types": [ "KBaseSets.ReadsSet", "KBaseFile.PairedEndLibrary", "KBaseFile.SingleEndLibrary"]
 			}
 		},
         {
@@ -84,19 +62,7 @@
 						}
 					]
 				}
-		},
-        {
-            "id": "confidence",
-            "optional": true,
-            "advanced": true,
-            "allow_multiple": false,
-            "default_values": [ "0.0" ],
-            "field_type": "text",
-            "text_options": {
-                "validate_as": "float",
-                "max_float" : 1.0
-            }
-        }
+		}
     ],
     "behavior": {
         "service-mapping": {
@@ -113,29 +79,14 @@
                     "target_property": "workspace_id"
                 },
                 {
-                    "input_parameter": "input_genomes",
-					"target_property": "input_genomes",
-					"target_type_transform": "list<resolved-ref>"
-                },
-                {
 					"input_parameter": "input_refs",
 					"target_property": "input_refs",
-					"target_type_transform": "list<resolved-ref>"
-
-				},
-                {
-					"input_parameter": "input_paired_refs",
-					"target_property": "input_paired_refs",
 					"target_type_transform": "list<resolved-ref>"
 
 				},
 				{
 					"input_parameter": "db_type",
 					"target_property": "db_type"
-				},
-				{
-					"input_parameter": "confidence",
-					"target_property": "confidence"
 				}
             ],
             "output_mapping": [

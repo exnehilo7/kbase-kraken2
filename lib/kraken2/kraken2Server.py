@@ -342,6 +342,10 @@ class Application(object):
                              name='kraken2.run_kraken2',
                              types=[dict])
         self.method_authentication['kraken2.run_kraken2'] = 'required'  # noqa
+        self.rpc_service.add(impl_kraken2.exec_kraken2,
+                             name='kraken2.exec_kraken2',
+                             types=[dict])
+        self.method_authentication['kraken2.exec_kraken2'] = 'required'  # noqa
         self.rpc_service.add(impl_kraken2.status,
                              name='kraken2.status',
                              types=[dict])

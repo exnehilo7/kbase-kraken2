@@ -9,7 +9,6 @@ import shutil
 import re
 from jinja2 import Template
 from pprint import pprint, pformat
-from glob import glob
 
 from installed_clients.KBaseReportClient import KBaseReport
 from installed_clients.ReadsUtilsClient import ReadsUtils
@@ -36,9 +35,9 @@ class kraken2:
     # state. A method could easily clobber the state set by another while
     # the latter method is running.
     ######################################### noqa
-    VERSION = "0.0.2"
+    VERSION = "0.0.1"
     GIT_URL = "git@github.com:mflynn-lanl/kbase-kraken2.git"
-    GIT_COMMIT_HASH = "e73262263108ff3ff29789ffeb8bb1a75bc8acf7"
+    GIT_COMMIT_HASH = "2993ea6b7451e8867881789e82f31252c504ea61"
 
     #BEGIN_CLASS_HEADER
     def create_report(self, ws, output_list, html_folder):
@@ -228,10 +227,9 @@ class kraken2:
         #END_CONSTRUCTOR
         pass
 
-
     def run_kraken2(self, ctx, params):
         """
-        This example function accepts any number of parameters and returns results in a KBaseReport
+        This function accepts any number of parameters and returns results in a KBaseReport
         :param params: instance of mapping from String to unspecified object
         :returns: instance of type "ReportResults" -> structure: parameter
            "report_name" of String, parameter "report_ref" of String
@@ -334,7 +332,6 @@ class kraken2:
             os.makedirs(output_dir)
 
         #END run_kraken2
-
         # At some point might do deeper type checking...
         if not isinstance(output, dict):
             raise ValueError('Method run_kraken2 return value ' +
@@ -436,7 +433,8 @@ class kraken2:
         cmd = ['/kb/module/lib/kraken2/src/kraken2.sh',
                '-d', '/data/kraken2/' + params['db_type'],
                '-o', output_dir, '-p', outprefix,
-               '-t', '1', '-i', fastq_files_string]
+               '-t', '1', '-i']
+        cmd.extend(fastq_files_string)
 
         logging.info(f'cmd {cmd}')
         p = subprocess.Popen(cmd, stdout=subprocess.PIPE,
@@ -444,12 +442,11 @@ class kraken2:
         logging.info(f'subprocess {p.communicate()}')
 
         summary_file = os.path.join(output_dir, outprefix + '.report.csv')
+        report_dir = os.path.join(output_dir, 'html_report')
         if not os.path.exists(report_dir):
             os.makedirs(report_dir)
         summary_file_dt = os.path.join(report_dir, f'{outprefix}.datatable.html')
         self._generate_DataTable(summary_file, summary_file_dt)
-        self.fill_template('/kb/module/lib/kraken2/src/index.html.tmpl', {'label': label},
-                           os.path.join(report_dir, f'{label}_index.html'))
         shutil.copy2('/kb/module/lib/kraken2/src/index.html', os.path.join(report_dir, 'index.html'))
         shutil.copy2(os.path.join(output_dir, outprefix + '.krona.html'),
                      os.path.join(report_dir, f'{outprefix}.krona.html'))
@@ -475,27 +472,35 @@ class kraken2:
         # html_zipped = self.package_folder(output_dir, 'report.html',
         #                                   'report')
         # Step 5 - Build a Report and return
-        output_files = glob(report_dir + f'/{label}*')
-
-        logging.info(f'glob output_files {output_files}')
+        objects_created = []
+        output_files = os.listdir(output_dir)
         output_files_list = []
-        for file in output_files:
-            if not os.path.isdir(file):
-                # logging.info(f'file {file}')
-                output_files_list.append({'path': file,
-                                          'name': file.split('/')[-1]
-                                          })
-        logging.info(f'output_files_list {output_files_list}')
+        for output in output_files:
+            if not os.path.isdir(output):
+                output_files_list.append(
+                    {'path': os.path.join(output_dir, output), 'name': output})
+        message = f"Kraken2 run finished on {fastq_files_string} against {params['db_type']}."
+        report_params = {'message': message,
+                         'workspace_name': params.get('workspace_name'),
+                         'objects_created': objects_created,
+                         'file_links': output_files_list,
+                         'html_links': [html_zipped],
+                         'direct_html_link_index': 0,
+                         'html_window_height': 460}
 
-        output = {'output_files': output_files_list, 'html_zipped': html_zipped}
+        # STEP 6: construct the output to send back
+        kbase_report_client = KBaseReport(self.callback_url)
+        report_output = kbase_report_client.create_extended_report(
+            report_params)
+        report_output['report_params'] = report_params
+        logging.info(report_output)
+        # Return references which will allow inline display of
+        # the report in the Narrative
+        output = {'report_name': report_output['name'],
+                  'report_ref': report_output['ref'],
+                  'report_params': report_output['report_params']
+                  }
         #END exec_kraken2
-
-        # At some point might do deeper type checking...
-        if not isinstance(output, dict):
-            raise ValueError('Method exec_kraken2 return value ' +
-                             'output is not type dict as required.')
-        # return the results
-        return [output]
     def status(self, ctx):
         #BEGIN_STATUS
         returnVal = {'state': "OK",
