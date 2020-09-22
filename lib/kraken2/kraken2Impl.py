@@ -443,19 +443,18 @@ class kraken2:
                              stderr=subprocess.STDOUT)
         logging.info(f'subprocess {p.communicate()}')
 
-        summary_file = os.path.join(output_dir, outprefix + '.report.csv')
+        summary_file = os.path.join(output_dir, f'{outprefix}.report.csv')
         if not os.path.exists(report_dir):
             os.makedirs(report_dir)
-        summary_file_dt = os.path.join(report_dir, f'{outprefix}.datatable.html')
+        summary_file_dt = os.path.join(report_dir, f'{label}_{outprefix}.datatable.html')
         self._generate_DataTable(summary_file, summary_file_dt)
         self.fill_template('/kb/module/lib/kraken2/src/index.html.tmpl', {'label': label},
                            os.path.join(report_dir, f'{label}_index.html'))
-        shutil.copy2('/kb/module/lib/kraken2/src/index.html', os.path.join(report_dir, 'index.html'))
-        shutil.copy2(os.path.join(output_dir, outprefix + '.krona.html'),
-                     os.path.join(report_dir, f'{outprefix}.krona.html'))
+        shutil.copy2(os.path.join(output_dir, f'{outprefix}.krona.html'),
+                     os.path.join(report_dir, f'{label}_{outprefix}.krona.html'))
         shutil.move(os.path.join(output_dir, outprefix + '.tree.svg'),
-                    os.path.join(report_dir, f'{outprefix}..tree.svg'))
-        html_zipped = self.package_folder(report_dir, 'index.html', 'index.html')
+                    os.path.join(report_dir, f'{label}_{outprefix}.tree.svg'))
+        html_zipped = self.package_folder(report_dir, f'{label}_index.html', f'{label}_index.html')
 
         # columns = [
         #     'Percentage of fragments covered by the clade rooted at this taxon',
@@ -481,7 +480,7 @@ class kraken2:
         output_files_list = []
         for file in output_files:
             if not os.path.isdir(file):
-                # logging.info(f'file {file}')
+                logging.info(f'file {file}')
                 output_files_list.append({'path': file,
                                           'name': file.split('/')[-1]
                                           })

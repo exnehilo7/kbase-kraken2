@@ -70,9 +70,11 @@ class kraken2Test(unittest.TestCase):
         #
         # Check returned data with
         # self.assertEqual(ret[...], ...) or other unittest methods
-        input_genomes = ["79/16/1"]
+        # input_genomes = ["79/16/1"]
         input_refs = ['22956/5/2']
-        refs = ['22956/22/1']
+        test_fastq_reads = ['22956/22/1'] # test.fastq_reads
+        two_reads_set = ['22956/25/1'] #two_se_reads_set (v1) test.fastq_reads (v1) rhodo.art.q50.SE.reads.fastq (v2)
+        test_reads_set = ['22956/23/1'] # reads set with single read (test_reads_set)
         input_paired_refs = ['22956/8/1', '22956/7/1']
         print(f"input_refs {input_refs}")
     #
@@ -126,7 +128,7 @@ class kraken2Test(unittest.TestCase):
 
         result = self.serviceImpl.run_kraken2(self.ctx,
                                            {'workspace_name': self.wsName,
-                                            'input_refs': ['22956/59/1'],
+                                            'input_refs': two_reads_set,
                                             'confidence': 0.1,
                                             'db_type': 'minikraken2_v1_8GB'})[0]
 
