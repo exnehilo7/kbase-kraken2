@@ -68,9 +68,9 @@ class kraken2Test(unittest.TestCase):
         #
         # Check returned data with
         # self.assertEqual(ret[...], ...) or other unittest methods
-        input_genomes = ["79/16/1"]
-        input_refs = ['22956/5/2']
-        input_paired_refs = ['22956/8/1', '22956/7/1']
+        input_genomes = ["75294/10/2"] # Original file was 79/16/1
+        input_refs = ['75294/7/1'] # Original file was 22956/5/2
+        input_paired_refs = ['75294/11/1', '75294/2/1'] # Original files were 22956/8/1, 22956/7/1
         print(f"input_refs {input_refs}")
     #
     #     # Test that either input_genomes or reads
