@@ -24,24 +24,63 @@ RUN apt-get update && apt-get -y upgrade \
 #     && pip install jsonrpcbase coverage
 # ---------------------------------------------------------
 
-RUN conda update -n base conda
+# License is now required for Anaconda
+# RUN conda update -n base conda
+
+# # TRY MAMBA?
+# RUN rm -rf /opt/conda3 \
+#     && rm -rf ~/.condarc ~/.conda
+# RUN wget "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-$(uname)-$(uname -m).sh"
+# RUN bash Miniforge3-$(uname)-$(uname -m).sh -b
+
 
 RUN rm /bin/sh && ln -s /bin/bash /bin/sh
 
-# bioconda no longer required?
-RUN conda create -n py313 python=3.13 \
-    && source activate py313 \
-    && conda config --add channels bioconda 
-    # && conda config --add channels conda-forge 
+ENV PATH="/root/.pixi/bin:${PATH}"
 
-RUN conda install -y pandas 
-RUN conda install -y kraken2 
-RUN conda install -y jinja2 
-RUN conda install -y nose  
-RUN conda install -y requests 
-RUN pip install jsonrpcbase 
-RUN pip install coverage 
-RUN conda clean -afy
+# RUN echo 'export PATH="/root/.pixi/bin:$PATH"' >> /root/.bashrc \
+#     && source /root/.bashrc
+
+# RUN echo $PATH \
+#     && more /root/.bashrc
+
+
+# TRY PIXI?
+# RUN wget -qO- https://pixi.sh/install.sh | sh
+
+# Restart the shell to ensure pixi is in the path
+# RUN export PATH="/root/.pixi/bin:$PATH"
+# RUN echo 'export PATH="/root/.pixi/bin:$PATH"' >> /root/.bashrc
+# RUN source /root/.bashrc
+
+RUN wget -qO- https://pixi.sh/install.sh | sh
+
+# RUN export PATH="/root/.pixi/bin:$PATH"
+
+# RUN pixi init py313 \ 
+#     && cd py313 \
+#     && pixi add python=3.13 \
+#     && pixi add pandas \
+#     && pixi project channel add bioconda \
+#     && pixi add kraken2 \
+#     && pixi add jinja2 \
+#     && pixi add nose \
+#     && pixi add requests
+
+WORKDIR /kb
+
+RUN pixi init module \ 
+    && cd module \
+    && pixi add python=3.13 \
+    && pixi add pandas \
+    && pixi project channel add bioconda \
+    && pixi add kraken2 \
+    && pixi add jinja2 \
+    && pixi add nose \
+    && pixi add requests
+
+RUN pip install jsonrpcbase \
+    && pip install coverage
 
 
 WORKDIR /kb/module
@@ -78,6 +117,11 @@ RUN chmod -R a+rw /kb/module
 RUN chmod +x /kb/module/lib/kraken2/src/kraken2.sh
 
 WORKDIR /kb/module
+
+# RUN echo 'export PYTHONPATH="/py313"' >> /root/.bashrc
+RUN echo 'alias python="pixi run python"' >> /root/.bashrc \
+    && echo 'alias python3="pixi run python"' >> /root/.bashrc \
+    && source /root/.bashrc
 
 RUN make all
 
